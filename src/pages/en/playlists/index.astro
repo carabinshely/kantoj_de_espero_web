@@ -1,0 +1,11 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PlaylistCard from '@/components/PlaylistCard.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+import { playlists } from '@/lib/site';
+---
+<BaseLayout title="Esperanto Music Playlists" description="Five themed Kantoj de Espero playlist pages for modern Esperanto pop-rock discovery." path="/en/playlists/" alternatePath="/eo/ludlistoj/" lang="en">
+  <section class="hero"><p class="eyebrow">Playlists</p><h1>Five ways into the catalog</h1><p class="lede">Start with a broad introduction, or follow themes of hope, love, night, memory, and strange stories.</p></section>
+  <LanguageSwitch href="/eo/ludlistoj/" label="Vidi ludlistojn Esperante" />
+  <div class="grid">{playlists.map((playlist) => <PlaylistCard playlist={playlist} lang="en" />)}</div>
+</BaseLayout>

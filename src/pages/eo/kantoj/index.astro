@@ -1,0 +1,11 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SongCard from '@/components/SongCard.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+import { songs } from '@/lib/site';
+---
+<BaseLayout title="Esperantaj Kantoj" description="Foliumu 20 modernajn Esperantajn kantojn de Kantoj de Espero kun tekstoj, etosoj, temoj kaj ludlistaj ligoj." path="/eo/kantoj/" alternatePath="/en/songs/" lang="eo">
+  <section class="hero"><p class="eyebrow">Katalogo</p><h1>20 Esperantaj kantoj</h1><p class="lede">Publik-sekura katalogo kun tekstoj, etosoj, temoj kaj vojoj al temaj ludlistoj.</p></section>
+  <LanguageSwitch href="/en/songs/" label="View the song index in English" />
+  <div class="grid">{songs.map((song) => <SongCard song={song} lang="eo" />)}</div>
+</BaseLayout>

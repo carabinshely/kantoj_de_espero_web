@@ -1,0 +1,13 @@
+---
+import TagChips from './TagChips.astro';
+import { localizedSong, songPath } from '@/lib/site';
+import type { Lang, PublicSong } from '@/lib/types';
+interface Props { song: PublicSong; lang: Lang }
+const { song, lang } = Astro.props;
+const copy = localizedSong(song, lang);
+---
+<article class="card song-card">
+  <h3><a href={songPath(song, lang)}>{copy.title}</a></h3>
+  <p>{copy.hook}</p>
+  <TagChips values={song.public_moods.slice(0, 3)} label="Song moods" />
+</article>

@@ -1,0 +1,11 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PlaylistCard from '@/components/PlaylistCard.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+import { playlists } from '@/lib/site';
+---
+<BaseLayout title="Esperantaj Muzikaj Ludlistoj" description="Kvin temaj ludlistaj paĝoj de Kantoj de Espero por malkovri modernan Esperantan poprokon." path="/eo/ludlistoj/" alternatePath="/en/playlists/" lang="eo">
+  <section class="hero"><p class="eyebrow">Ludlistoj</p><h1>Kvin vojoj en la katalogon</h1><p class="lede">Komencu per ĝenerala enkonduko, aŭ sekvu temojn de espero, amo, nokto, memoro kaj strangaj rakontoj.</p></section>
+  <LanguageSwitch href="/en/playlists/" label="View playlists in English" />
+  <div class="grid">{playlists.map((playlist) => <PlaylistCard playlist={playlist} lang="eo" />)}</div>
+</BaseLayout>

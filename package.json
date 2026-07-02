@@ -1,0 +1,28 @@
+{
+  "name": "kantoj-de-espero-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export:data": "node scripts/export-public-data.mjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "verify:data": "node scripts/verify-data.mjs",
+    "verify:routes": "node scripts/verify-routes.mjs",
+    "verify:seo": "node scripts/verify-seo.mjs",
+    "verify:privacy": "node scripts/verify-privacy.mjs",
+    "verify:launch": "node scripts/verify-launch.mjs",
+    "verify": "npm run export:data && npm run build && npm run verify:data && npm run verify:routes && npm run verify:seo && npm run verify:privacy"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.0.5"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

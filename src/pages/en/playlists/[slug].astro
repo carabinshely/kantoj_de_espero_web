@@ -1,0 +1,20 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+import SongCard from '@/components/SongCard.astro';
+import ListenLinks from '@/components/ListenLinks.astro';
+import { playlists, localizedPlaylist, playlistPath, songsForPlaylist, songPath } from '@/lib/site';
+import { playlistJsonLd } from '@/lib/seo';
+
+export function getStaticPaths() {
+  return playlists.map((playlist) => ({ params: { slug: playlist.slug_en }, props: { playlist } }));
+}
+const { playlist } = Astro.props;
+const copy = localizedPlaylist(playlist, 'en');
+const playlistSongs = songsForPlaylist(playlist);
+---
+<BaseLayout title={copy.seoTitle} description={copy.metaDescription} path={playlistPath(playlist, 'en')} alternatePath={playlistPath(playlist, 'eo')} lang="en" jsonLd={playlistJsonLd(copy.title, copy.metaDescription, playlistPath(playlist, 'en'), playlistSongs.map((song) => songPath(song, 'en')))}>
+  <section class="hero"><p class="eyebrow">Playlist</p><h1>{copy.title}</h1><p class="lede">{copy.intro}</p><ListenLinks links={playlist.streaming_links} label={`Listen to ${copy.title}`} /></section>
+  <LanguageSwitch href={playlistPath(playlist, 'eo')} label="Legu ĉi tiun ludliston Esperante" />
+  <section><h2>Songs in order</h2><div class="grid">{playlistSongs.map((song) => <SongCard song={song} lang="en" />)}</div></section>
+</BaseLayout>

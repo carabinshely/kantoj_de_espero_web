@@ -1,0 +1,57 @@
+---
+import { siteUrl, languageAlternates } from '@/lib/seo';
+import { siteFacts } from '@/lib/site';
+import '@/styles/global.css';
+import type { Lang } from '@/lib/types';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  lang?: Lang;
+  alternatePath?: string;
+  jsonLd?: unknown;
+}
+
+const { title, description, path, lang = 'en', alternatePath, jsonLd } = Astro.props;
+const alternates = alternatePath ? languageAlternates(path, alternatePath) : [{ lang: 'x-default', href: siteUrl('/') }];
+const canonical = siteUrl(path);
+const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${siteFacts.artistName}`;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.lang} href={alt.href} />)}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={siteFacts.artistName} />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/">{siteFacts.artistName}</a>
+      <nav aria-label="Primary navigation">
+        <a href="/en/">English</a>
+        <a href="/eo/">Esperanto</a>
+        <a href="/en/songs/">Songs</a>
+        <a href="/en/playlists/">Playlists</a>
+        <a href="/en/licensing/">Licensing</a>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>{siteFacts.artistName} — {siteFacts.tagline}</p>
+      <p><a href="/en/about/">About</a> · <a href="/eo/pri-ni/">Pri ni</a> · <a href="/en/licensing/">Licensing</a></p>
+    </footer>
+  </body>
+</html>

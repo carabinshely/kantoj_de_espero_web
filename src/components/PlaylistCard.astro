@@ -1,0 +1,12 @@
+---
+import { localizedPlaylist, playlistPath } from '@/lib/site';
+import type { Lang, PublicPlaylist } from '@/lib/types';
+interface Props { playlist: PublicPlaylist; lang: Lang }
+const { playlist, lang } = Astro.props;
+const copy = localizedPlaylist(playlist, lang);
+---
+<article class="card playlist-card">
+  <h3><a href={playlistPath(playlist, lang)}>{copy.title}</a></h3>
+  <p>{copy.intro}</p>
+  <p class="meta">{playlist.song_ids.length} songs</p>
+</article>

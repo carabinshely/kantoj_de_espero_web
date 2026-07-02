@@ -1,0 +1,15 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { musicGroupJsonLd } from '@/lib/seo';
+---
+<BaseLayout title="Kantoj de Espero" description="Modern Esperanto pop-rock songs, lyrics, and playlists in English and Esperanto." path="/" jsonLd={musicGroupJsonLd('/')}>
+  <section class="hero">
+    <p class="eyebrow">Modern Esperanto Pop-Rock</p>
+    <h1>Kantoj de Espero</h1>
+    <p class="lede">A bilingual home for modern Esperanto songs: lyrics, playlists, and context for curious listeners.</p>
+    <div class="actions">
+      <a class="button accent" href="/en/">Enter in English</a>
+      <a class="button" href="/eo/">Eniru Esperante</a>
+    </div>
+  </section>
+</BaseLayout>

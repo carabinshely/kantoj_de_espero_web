@@ -1,0 +1,5 @@
+---
+interface Props { href: string; label?: string }
+const { href, label = 'Read in the other language' } = Astro.props;
+---
+<p class="language-switch"><a href={href}>{label}</a></p>

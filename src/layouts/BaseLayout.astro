@@ -1,6 +1,6 @@
 ---
 import { pageHref, siteUrl, languageAlternates } from '@/lib/seo';
-import { siteFacts } from '@/lib/site';
+import { languages, siteFacts } from '@/lib/site';
 import '@/styles/global.css';
 import type { Lang } from '@/lib/types';
 
@@ -18,6 +18,12 @@ const alternates = alternatePath ? languageAlternates(path, alternatePath) : [{ 
 const canonical = siteUrl(path);
 const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${siteFacts.artistName}`;
 const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
+const primaryNav = lang === 'eo'
+  ? { aria: 'Ĉefa navigado', songs: 'Kantoj', playlists: 'Ludlistoj', licensing: 'Licencado', about: 'Pri ni', skip: 'Salti al enhavo' }
+  : { aria: 'Primary navigation', songs: 'Songs', playlists: 'Playlists', licensing: 'Licensing', about: 'About', skip: 'Skip to content' };
+const langHome = languages[lang].home;
+const otherLang: Lang = lang === 'en' ? 'eo' : 'en';
+const otherLangHome = languages[otherLang].home;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -36,15 +42,15 @@ const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : nu
     {safeJsonLd && <script is:inline type="application/ld+json" set:html={safeJsonLd} />}
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">{primaryNav.skip}</a>
     <header class="site-header">
       <a class="brand" href={pageHref("/")}>{siteFacts.artistName}</a>
-      <nav aria-label="Primary navigation">
-        <a href={pageHref("/en/")}>English</a>
-        <a href={pageHref("/eo/")}>Esperanto</a>
-        <a href={pageHref("/en/songs/")}>Songs</a>
-        <a href={pageHref("/en/playlists/")}>Playlists</a>
-        <a href={pageHref("/en/licensing/")}>Licensing</a>
+      <nav aria-label={primaryNav.aria}>
+        <a href={pageHref(langHome)}>{languages[lang].label}</a>
+        <a href={pageHref(otherLangHome)}>{languages[otherLang].label}</a>
+        <a href={pageHref(languages[lang].songs)}>{primaryNav.songs}</a>
+        <a href={pageHref(languages[lang].playlists)}>{primaryNav.playlists}</a>
+        <a href={pageHref(languages[lang].licensing)}>{primaryNav.licensing}</a>
       </nav>
     </header>
     <main id="main">
@@ -52,7 +58,7 @@ const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : nu
     </main>
     <footer class="site-footer">
       <p>{siteFacts.artistName} — {siteFacts.tagline}</p>
-      <p><a href={pageHref("/en/about/")}>About</a> · <a href={pageHref("/eo/pri-ni/")}>Pri ni</a> · <a href={pageHref("/en/licensing/")}>Licensing</a></p>
+      <p><a href={pageHref(languages[lang].about)}>{primaryNav.about}</a> · <a href={pageHref(languages[lang].licensing)}>{primaryNav.licensing}</a></p>
     </footer>
   </body>
 </html>

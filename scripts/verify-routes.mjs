@@ -19,6 +19,13 @@ function checkInternalHrefs(route) {
   }
 }
 
+
+function checkLocalizedShell(route) {
+  const page = readFileSync(routePath(route), 'utf8');
+  if (route.startsWith('/eo/') && (!page.includes('aria-label="Ĉefa navigado"') || !page.includes('href="/eo/kantoj/"') || !page.includes('href="/eo/ludlistoj/"') || !page.includes('href="/eo/licencado/"'))) fail({ check: 'verify:routes', problem: `Esperanto route ${route} does not keep global navigation in Esperanto.`, cause: 'The shared layout sent Esperanto visitors back to English catalog routes.', path: routePath(route), fix: 'Drive header/footer navigation from the current BaseLayout lang.' });
+  if (route.startsWith('/en/') && (!page.includes('aria-label="Primary navigation"') || !page.includes('href="/en/songs/"') || !page.includes('href="/en/playlists/"') || !page.includes('href="/en/licensing/"'))) fail({ check: 'verify:routes', problem: `English route ${route} does not keep global navigation in English.`, cause: 'The shared layout should keep language-local catalog routes.', path: routePath(route), fix: 'Drive header/footer navigation from the current BaseLayout lang.' });
+}
+
 function requireRoute(route) {
   if (!existsSync(routePath(route))) fail({ check: 'verify:routes', problem: `Missing generated route ${route}`, cause: 'Astro did not emit an expected MVP route.', path: routePath(route), fix: 'Check page file/getStaticPaths and rerun npm run build.' });
 }
@@ -28,7 +35,7 @@ for (const song of catalog.songs) { requireRoute(`/en/songs/${song.slug}/`); req
 for (const playlist of catalog.playlists) { requireRoute(`/en/playlists/${playlist.slug_en}/`); requireRoute(`/eo/ludlistoj/${playlist.slug_eo}/`); }
 if (existsSync('dist/en/support/index.html') || existsSync('dist/eo/subtenu/index.html')) fail({ check: 'verify:routes', problem: 'Support route was generated while support facts are disabled.', cause: 'Support pages/CTAs must be omitted without approved support URL/copy.', path: 'dist/en/support/index.html', fix: 'Remove support pages until support.enabled and support.url are approved.' });
 const allRoutes = [...routes, ...catalog.songs.flatMap((song) => [`/en/songs/${song.slug}/`, `/eo/kantoj/${song.slug}/`]), ...catalog.playlists.flatMap((playlist) => [`/en/playlists/${playlist.slug_en}/`, `/eo/ludlistoj/${playlist.slug_eo}/`])];
-for (const route of allRoutes) checkInternalHrefs(route);
+for (const route of allRoutes) { checkInternalHrefs(route); checkLocalizedShell(route); }
 for (const route of routes) {
   const html = readFileSync(routePath(route), 'utf8');
   if (!html.includes('<main')) fail({ check: 'verify:routes', problem: `Route ${route} has no main landmark.`, cause: 'Base layout may not have rendered.', path: routePath(route), fix: 'Render routes through BaseLayout.' });

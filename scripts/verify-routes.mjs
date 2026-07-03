@@ -34,10 +34,15 @@ for (const route of routes) requireRoute(route);
 for (const song of catalog.songs) { requireRoute(`/en/songs/${song.slug}/`); requireRoute(`/eo/kantoj/${song.slug}/`); }
 for (const playlist of catalog.playlists) { requireRoute(`/en/playlists/${playlist.slug_en}/`); requireRoute(`/eo/ludlistoj/${playlist.slug_eo}/`); }
 if (existsSync('dist/en/support/index.html') || existsSync('dist/eo/subtenu/index.html')) fail({ check: 'verify:routes', problem: 'Support route was generated while support facts are disabled.', cause: 'Support pages/CTAs must be omitted without approved support URL/copy.', path: 'dist/en/support/index.html', fix: 'Remove support pages until support.enabled and support.url are approved.' });
+if (!existsSync('dist/404.html')) fail({ check: 'verify:routes', problem: 'Missing custom 404 page.', cause: 'Unknown routes fall back to a plain server error instead of the site shell.', path: 'dist/404.html', fix: 'Add src/pages/404.astro with recovery links.' });
+else {
+  const notFound = readFileSync('dist/404.html', 'utf8');
+  if (!notFound.includes('<main') || !notFound.includes('/en/') || !notFound.includes('/eo/')) fail({ check: 'verify:routes', problem: 'Custom 404 page lacks recovery navigation.', cause: 'Users on missing routes need a path back into both language homes.', path: 'dist/404.html', fix: 'Render the 404 through BaseLayout with English and Esperanto recovery links.' });
+}
 const allRoutes = [...routes, ...catalog.songs.flatMap((song) => [`/en/songs/${song.slug}/`, `/eo/kantoj/${song.slug}/`]), ...catalog.playlists.flatMap((playlist) => [`/en/playlists/${playlist.slug_en}/`, `/eo/ludlistoj/${playlist.slug_eo}/`])];
 for (const route of allRoutes) { checkInternalHrefs(route); checkLocalizedShell(route); }
 for (const route of routes) {
   const html = readFileSync(routePath(route), 'utf8');
   if (!html.includes('<main')) fail({ check: 'verify:routes', problem: `Route ${route} has no main landmark.`, cause: 'Base layout may not have rendered.', path: routePath(route), fix: 'Render routes through BaseLayout.' });
 }
-pass('verify:routes', `${routes.length + catalog.songs.length * 2 + catalog.playlists.length * 2} expected routes generated; support omitted`);
+pass('verify:routes', `${routes.length + catalog.songs.length * 2 + catalog.playlists.length * 2} expected routes generated plus custom 404; support omitted`);

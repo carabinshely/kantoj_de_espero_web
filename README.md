@@ -23,12 +23,14 @@ npm run build
 npm run verify
 ```
 
-`npm run verify` regenerates public data, builds the static site, and runs safe-local checks:
+``npm run verify` builds from committed public data and runs safe-local checks. In the private workspace, run `npm run verify:full` to regenerate public data before verifying:
 
 - `verify:data`
 - `verify:routes`
 - `verify:seo`
 - `verify:privacy`
+
+`npm run export:data` is intentionally a private-workspace command because it reads `../data/normalized/`. A standalone public `web/` checkout can still run `npm install`, `npm run build`, and `npm run verify` against committed public data.
 
 Launch readiness is separate:
 

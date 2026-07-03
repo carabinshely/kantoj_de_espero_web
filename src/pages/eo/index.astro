@@ -3,7 +3,6 @@ import { pageHref } from '@/lib/seo';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SongCard from '@/components/SongCard.astro';
 import PlaylistCard from '@/components/PlaylistCard.astro';
-import CtaBand from '@/components/CtaBand.astro';
 import LanguageSwitch from '@/components/LanguageSwitch.astro';
 import { songs, playlists } from '@/lib/site';
 import { musicGroupJsonLd } from '@/lib/seo';
@@ -19,5 +18,4 @@ const featured = songs.filter((song) => song.featured).slice(0, 6);
   <LanguageSwitch href="/en/" label="Read in English" />
   <section><h2>Elstaraj kantoj</h2><div class="grid">{featured.map((song) => <SongCard song={song} lang="eo" />)}</div></section>
   <section><h2>Ludlistaj vojoj</h2><div class="grid">{playlists.map((playlist) => <PlaylistCard playlist={playlist} lang="eo" />)}</div></section>
-  <CtaBand title="Licencado kaj specialaj kantoj" body="Elektitaj kantoj estas markitaj kiel disponeblaj por licencado. Kontaktaj detaloj estos aldonitaj antaŭ publika lanĉo." href="/eo/licencado/" label="Detaloj pri licencado" />
 </BaseLayout>

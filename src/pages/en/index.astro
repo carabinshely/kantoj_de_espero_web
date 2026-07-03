@@ -3,7 +3,6 @@ import { pageHref } from '@/lib/seo';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SongCard from '@/components/SongCard.astro';
 import PlaylistCard from '@/components/PlaylistCard.astro';
-import CtaBand from '@/components/CtaBand.astro';
 import LanguageSwitch from '@/components/LanguageSwitch.astro';
 import { songs, playlists } from '@/lib/site';
 import { musicGroupJsonLd } from '@/lib/seo';
@@ -19,5 +18,4 @@ const featured = songs.filter((song) => song.featured).slice(0, 6);
   <LanguageSwitch href="/eo/" label="Legu Esperante" />
   <section><h2>Featured songs</h2><div class="grid">{featured.map((song) => <SongCard song={song} lang="en" />)}</div></section>
   <section><h2>Playlist paths</h2><div class="grid">{playlists.map((playlist) => <PlaylistCard playlist={playlist} lang="en" />)}</div></section>
-  <CtaBand title="Licensing and custom-song interest" body="Selected songs are marked as available for licensing. Contact details will be added before public launch." href="/en/licensing/" label="Licensing details" />
 </BaseLayout>

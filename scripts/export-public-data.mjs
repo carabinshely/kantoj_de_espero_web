@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { TEMPORARY_CANONICAL_BASE } from '../site.config.mjs';
 import { SONG_KEYS, PLAYLIST_KEYS, STREAMING_PLATFORMS } from './catalog-schema.mjs';
 
 const repoRoot = resolve('..');
@@ -44,7 +45,7 @@ for (const playlist of playlists) {
 const defaultSiteFacts = {
   artistName: 'Kantoj de Espero',
   tagline: 'Modern Esperanto Pop-Rock',
-  temporaryCanonicalBase: 'https://carabinshely.github.io/kantoj_de_espero_web/',
+  temporaryCanonicalBase: TEMPORARY_CANONICAL_BASE,
   finalDomainReady: false,
   disclosurePreferenceReady: false,
   publicBioReady: false,
@@ -78,4 +79,6 @@ const siteFacts = {
 await mkdir(outDir, { recursive: true });
 await writeFile(resolve(outDir, 'public-catalog.json'), `${JSON.stringify({ songs, playlists }, null, 2)}\n`, 'utf8');
 await writeFile(resolve(outDir, 'site-facts.json'), `${JSON.stringify(siteFacts, null, 2)}\n`, 'utf8');
+await mkdir(resolve('public'), { recursive: true });
+await writeFile(resolve('public/robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${siteFacts.temporaryCanonicalBase}sitemap-index.xml\n`, 'utf8');
 console.log(`Exported ${songs.length} songs and ${playlists.length} playlists to src/data/public-catalog.json`);

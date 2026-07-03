@@ -1,8 +1,9 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { SITE_BASE, SITE_URL } from './site.config.mjs';
 
-const site = process.env.SITE_URL || 'https://carabinshely.github.io';
-const base = process.env.SITE_BASE || '/kantoj_de_espero_web';
+const site = SITE_URL;
+const base = SITE_BASE;
 
 export default defineConfig({
   site,

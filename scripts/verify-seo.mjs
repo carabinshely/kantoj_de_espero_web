@@ -1,7 +1,8 @@
 import { readFileSync, existsSync } from 'node:fs';
 import catalog from '../src/data/public-catalog.json' with { type: 'json' };
 import { fail, pass } from './report.mjs';
-const base = 'https://carabinshely.github.io/kantoj_de_espero_web/';
+import { TEMPORARY_CANONICAL_BASE } from '../site.config.mjs';
+const base = TEMPORARY_CANONICAL_BASE;
 function html(route) { return readFileSync(`dist${route}index.html`, 'utf8'); }
 function checkPage(route, other) {
   const page = html(route);

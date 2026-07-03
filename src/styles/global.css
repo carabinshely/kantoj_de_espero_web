@@ -18,12 +18,12 @@ a { color: inherit; text-decoration-color: color-mix(in srgb, currentColor, tran
 a:visited { color: color-mix(in srgb, currentColor, var(--accent-2) 18%); }
 a:hover { color: var(--accent); }
 a:focus-visible { outline: 3px solid var(--accent); outline-offset: .18rem; border-radius: .35rem; }
-.skip-link { position: absolute; left: -999px; top: 1rem; background: var(--text); color: var(--bg); padding: .5rem; }
+.skip-link { position: absolute; left: -999px; top: 1rem; min-height: 44px; background: var(--text); color: var(--bg); padding: .5rem; }
 .skip-link:focus { left: 1rem; z-index: 10; }
 .site-header, .site-footer { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; padding: 1.25rem 0; }
 .site-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .brand { font-weight: 800; letter-spacing: .03em; text-decoration: none; }
-.brand, nav a, .site-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+.brand, nav a, .site-footer a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
 nav { display: flex; gap: .85rem; flex-wrap: wrap; color: var(--muted); }
 main { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; }
 .hero { padding: clamp(3rem, 8vw, 7rem) 0; display: grid; gap: 1.5rem; }

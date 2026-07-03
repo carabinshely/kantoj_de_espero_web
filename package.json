@@ -13,7 +13,8 @@
     "verify:seo": "node scripts/verify-seo.mjs",
     "verify:privacy": "node scripts/verify-privacy.mjs",
     "verify:launch": "node scripts/verify-launch.mjs",
-    "verify": "npm run export:data && npm run build && npm run verify:data && npm run verify:routes && npm run verify:seo && npm run verify:privacy"
+    "verify": "npm run export:data && npm run build && npm run verify:data && npm run verify:routes && npm run verify:seo && npm run verify:privacy",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

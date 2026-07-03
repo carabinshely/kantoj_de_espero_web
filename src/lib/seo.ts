@@ -50,3 +50,11 @@ export function playlistJsonLd(title: string, description: string, path: string,
     itemListElement: itemUrls.map((url, index) => ({ '@type': 'ListItem', position: index + 1, url: siteUrl(url) }))
   };
 }
+
+export function pageHref(path = '/') {
+  const base = import.meta.env.BASE_URL || '/';
+  if (/^(https?:|mailto:|tel:|#)/.test(path)) return path;
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${cleanBase}${cleanPath}`.replace(/\/+/g, '/');
+}

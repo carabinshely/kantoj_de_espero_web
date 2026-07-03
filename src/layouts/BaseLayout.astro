@@ -1,5 +1,5 @@
 ---
-import { siteUrl, languageAlternates } from '@/lib/seo';
+import { pageHref, siteUrl, languageAlternates } from '@/lib/seo';
 import { siteFacts } from '@/lib/site';
 import '@/styles/global.css';
 import type { Lang } from '@/lib/types';
@@ -37,13 +37,13 @@ const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${s
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
-      <a class="brand" href="/">{siteFacts.artistName}</a>
+      <a class="brand" href={pageHref("/")}>{siteFacts.artistName}</a>
       <nav aria-label="Primary navigation">
-        <a href="/en/">English</a>
-        <a href="/eo/">Esperanto</a>
-        <a href="/en/songs/">Songs</a>
-        <a href="/en/playlists/">Playlists</a>
-        <a href="/en/licensing/">Licensing</a>
+        <a href={pageHref("/en/")}>English</a>
+        <a href={pageHref("/eo/")}>Esperanto</a>
+        <a href={pageHref("/en/songs/")}>Songs</a>
+        <a href={pageHref("/en/playlists/")}>Playlists</a>
+        <a href={pageHref("/en/licensing/")}>Licensing</a>
       </nav>
     </header>
     <main id="main">
@@ -51,7 +51,7 @@ const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${s
     </main>
     <footer class="site-footer">
       <p>{siteFacts.artistName} — {siteFacts.tagline}</p>
-      <p><a href="/en/about/">About</a> · <a href="/eo/pri-ni/">Pri ni</a> · <a href="/en/licensing/">Licensing</a></p>
+      <p><a href={pageHref("/en/about/")}>About</a> · <a href={pageHref("/eo/pri-ni/")}>Pri ni</a> · <a href={pageHref("/en/licensing/")}>Licensing</a></p>
     </footer>
   </body>
 </html>

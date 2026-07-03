@@ -1,4 +1,5 @@
 ---
+import { pageHref } from '@/lib/seo';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { musicGroupJsonLd } from '@/lib/seo';
 ---
@@ -8,8 +9,8 @@ import { musicGroupJsonLd } from '@/lib/seo';
     <h1>Kantoj de Espero</h1>
     <p class="lede">A bilingual home for modern Esperanto songs: lyrics, playlists, and context for curious listeners.</p>
     <div class="actions">
-      <a class="button accent" href="/en/">Enter in English</a>
-      <a class="button" href="/eo/">Eniru Esperante</a>
+      <a class="button accent" href={pageHref("/en/")}>Enter in English</a>
+      <a class="button" href={pageHref("/eo/")}>Eniru Esperante</a>
     </div>
   </section>
 </BaseLayout>

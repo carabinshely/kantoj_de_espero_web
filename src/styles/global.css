@@ -39,10 +39,11 @@ p { margin: 0 0 1rem; }
 .card:hover, .card:focus-within { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent), transparent 55%); }
 .card h3 a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
 .meta, .muted { color: var(--muted); font-size: .95rem; }
-.button { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; border: 1px solid var(--line); border-radius: 999px; padding: .7rem 1rem; text-decoration: none; background: var(--panel-2); font-weight: 700; transition: transform 160ms ease-out, border-color 160ms ease-out, filter 160ms ease-out; }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; min-height: 44px; border: 1px solid var(--line); border-radius: 999px; padding: .7rem 1rem; text-decoration: none; background: var(--panel-2); font-weight: 700; transition: transform 160ms ease-out, border-color 160ms ease-out, filter 160ms ease-out; }
 .button:hover, .button:focus-visible { transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent), transparent 40%); }
 .button.accent { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #111; border: 0; }
 .actions, .listen-links { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1rem; }
+.contact-link { max-width: 100%; overflow-wrap: anywhere; word-break: break-word; text-align: center; }
 .chips { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .75rem; }
 .chips span { border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: .2rem .55rem; font-size: .85rem; }
 .lyrics { white-space: pre-wrap; font-family: ui-serif, Georgia, serif; background: #0d0d15; border: 1px solid var(--line); border-radius: 1.25rem; padding: 1.25rem; overflow-x: auto; }

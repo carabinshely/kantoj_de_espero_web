@@ -7,6 +7,15 @@ const usesProjectBase = cleanBase !== '/';
 const doubleBase = usesProjectBase ? `${cleanBase}${cleanBase.slice(1)}` : null;
 
 function routePath(route) { return `dist${route}index.html`; }
+function routeHtml(route) { return readFileSync(routePath(route), 'utf8'); }
+function assertIncludes(route, expected, problem, fix) {
+  const html = routeHtml(route);
+  if (!html.includes(expected)) fail({ check: 'verify:routes', problem, cause: `Expected rendered content was not found on ${route}.`, path: routePath(route), fix });
+}
+function assertNotIncludes(route, forbidden, problem, fix) {
+  const html = routeHtml(route).toLowerCase();
+  if (html.includes(forbidden.toLowerCase())) fail({ check: 'verify:routes', problem, cause: `Stale or launch-gated copy is still rendered on ${route}.`, path: routePath(route), fix });
+}
 
 function checkInternalHrefs(route) {
   const page = readFileSync(routePath(route), 'utf8');
@@ -19,11 +28,28 @@ function checkInternalHrefs(route) {
   }
 }
 
-
 function checkLocalizedShell(route) {
   const page = readFileSync(routePath(route), 'utf8');
   if (route.startsWith('/eo/') && (!page.includes('aria-label="Ĉefa navigado"') || !page.includes('href="/eo/kantoj/"') || !page.includes('href="/eo/ludlistoj/"') || !page.includes('href="/eo/licencado/"'))) fail({ check: 'verify:routes', problem: `Esperanto route ${route} does not keep global navigation in Esperanto.`, cause: 'The shared layout sent Esperanto visitors back to English catalog routes.', path: routePath(route), fix: 'Drive header/footer navigation from the current BaseLayout lang.' });
   if (route.startsWith('/en/') && (!page.includes('aria-label="Primary navigation"') || !page.includes('href="/en/songs/"') || !page.includes('href="/en/playlists/"') || !page.includes('href="/en/licensing/"'))) fail({ check: 'verify:routes', problem: `English route ${route} does not keep global navigation in English.`, cause: 'The shared layout should keep language-local catalog routes.', path: routePath(route), fix: 'Drive header/footer navigation from the current BaseLayout lang.' });
+}
+
+function checkLaunchCopy() {
+  const publicBio = 'Kantoj de Espero is a modern Esperanto pop-rock project created in 2024 to bring fresh, contemporary energy to the Esperanto community.';
+  assertIncludes('/en/about/', publicBio, 'English About page does not render the approved public bio.', 'Update src/pages/en/about/index.astro with the owner-approved public bio.');
+  assertIncludes('/eo/pri-ni/', 'Kantoj de Espero estas moderna Esperanta poproka projekto kreita en 2024', 'Esperanto About page does not render the approved public bio.', 'Update src/pages/eo/pri-ni/index.astro with approved public-facing Esperanto copy.');
+  for (const route of ['/en/licensing/', '/eo/licencado/']) {
+    assertIncludes(route, 'href="mailto:kantojdeespero@gmail.com"', `${route} does not render the approved licensing contact mailto.`, 'Render the approved contact method as the primary licensing action.');
+    assertIncludes(route, 'contact-link', `${route} contact email is missing the responsive contact-link class.`, 'Use the contact-link class so long email addresses wrap on narrow screens.');
+  }
+  for (const route of ['/en/about/', '/eo/pri-ni/', '/en/licensing/', '/eo/licencado/']) {
+    assertNotIncludes(route, 'will be added before launch', `${route} still contains stale launch-gated placeholder copy.`, 'Replace placeholder launch text with approved public facts.');
+    assertNotIncludes(route, 'blokos publikan publikigon', `${route} still says launch verification will block public release for stale facts.`, 'Replace stale launch-blocker copy with current approved public facts.');
+  }
+  const css = existsSync('dist/_astro') ? readFileSync('src/styles/global.css', 'utf8') : '';
+  if (!css.includes('min-height: 44px') || !css.includes('.contact-link') || !css.includes('overflow-wrap: anywhere')) {
+    fail({ check: 'verify:routes', problem: 'Responsive contact/action CSS guard is missing.', cause: 'Design acceptance requires keyboard/touch-friendly actions and wrapping email contact links.', path: 'src/styles/global.css', fix: 'Keep .button at least 44px high and .contact-link wrapping long email addresses.' });
+  }
 }
 
 function requireRoute(route) {
@@ -45,4 +71,5 @@ for (const route of routes) {
   const html = readFileSync(routePath(route), 'utf8');
   if (!html.includes('<main')) fail({ check: 'verify:routes', problem: `Route ${route} has no main landmark.`, cause: 'Base layout may not have rendered.', path: routePath(route), fix: 'Render routes through BaseLayout.' });
 }
-pass('verify:routes', `${routes.length + catalog.songs.length * 2 + catalog.playlists.length * 2} expected routes generated plus custom 404; support omitted`);
+checkLaunchCopy();
+pass('verify:routes', `${routes.length + catalog.songs.length * 2 + catalog.playlists.length * 2} expected routes generated plus custom 404; support omitted; approved public copy rendered`);

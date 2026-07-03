@@ -28,7 +28,7 @@ function walk(dir) {
 
 for (const root of scanRoots) {
   for (const path of walk(root)) {
-    if (!/\.(json|astro|ts|html|xml|txt|css)$/.test(path)) continue;
+    if (!/\.(json|astro|ts|js|mjs|html|xml|txt|css)$/.test(path)) continue;
     const text = readFileSync(path, 'utf8');
     for (const term of [...forbiddenTerms, ...FORBIDDEN_KEYS]) {
       if (allowedValidatorVocabularyFiles.has(path)) continue;

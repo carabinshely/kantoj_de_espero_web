@@ -1,10 +1,10 @@
 import catalog from '@/data/public-catalog.json';
 import facts from '@/data/site-facts.json';
-import type { Lang, PublicPlaylist, PublicSong, StreamingLinks } from './types';
+import type { Lang, PublicPlaylist, PublicSong, SiteFacts, StreamingLinks } from './types';
 
 export const songs = catalog.songs as PublicSong[];
 export const playlists = catalog.playlists as PublicPlaylist[];
-export const siteFacts = facts;
+export const siteFacts: SiteFacts = facts;
 
 export const languages: Record<Lang, { label: string; home: string; songs: string; playlists: string; about: string; licensing: string }> = {
   en: { label: 'English', home: '/en/', songs: '/en/songs/', playlists: '/en/playlists/', about: '/en/about/', licensing: '/en/licensing/' },

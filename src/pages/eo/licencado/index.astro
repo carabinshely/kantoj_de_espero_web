@@ -1,11 +1,24 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import LanguageSwitch from '@/components/LanguageSwitch.astro';
-import { songs } from '@/lib/site';
+import { songs, siteFacts } from '@/lib/site';
 const available = songs.filter((song) => song.license_available);
 ---
-<BaseLayout title="Licencado kaj Specialaj Kantoj" description="Informoj pri licencado kaj specialaj kantoj por Kantoj de Espero. Kontakta metodo estas lanĉa postulo." path="/eo/licencado/" alternatePath="/en/licensing/" lang="eo">
-  <section class="hero"><p class="eyebrow">Licencado</p><h1>Muziko por Esperantaj projektoj, komunikiloj kaj eventoj.</h1><p class="lede">Elektitaj kantoj de Kantoj de Espero estas markitaj kiel eble disponeblaj por licencado. La publika kontaktmetodo estos aldonita antaŭ lanĉo.</p></section>
+<BaseLayout title="Licencado kaj Specialaj Kantoj" description="Demandoj pri licencado kaj specialaj kantoj por Kantoj de Espero. Kontaktu la projekton retpoŝte pri rajtoj kaj havebleco." path="/eo/licencado/" alternatePath="/en/licensing/" lang="eo">
+  <section class="hero">
+    <p class="eyebrow">Licencado</p>
+    <h1>Muziko por Esperantaj projektoj, komunikiloj kaj eventoj.</h1>
+    <p class="lede">Elektitaj kantoj de Kantoj de Espero povas esti disponeblaj por licencado aŭ interparoloj pri specialaj kantoj.</p>
+  </section>
+  <section class="panel">
+    <h2>Kontakto</h2>
+    <p>Demandoj pri rajtoj kaj licencado estas traktataj de Kantoj de Espero.</p>
+    <p><a class="button accent contact-link" href={siteFacts.contactMethod}>kantojdeespero@gmail.com</a></p>
+  </section>
+  <section class="panel">
+    <h2>Rajtoj kaj katalogaj notoj</h2>
+    <p>Kantoj de Espero traktas demandojn pri rajtoj kaj licencado por la kantoj kaj tekstoj en ĉi tiu katalogo.</p>
+    <p class="muted">{available.length} MVP-kantoj estas markitaj kiel disponeblaj por licencado en la publika katalogo. Subtenaj ligiloj restas forlasitaj ĝis subtenaj detaloj estos aprobitaj.</p>
+  </section>
   <LanguageSwitch href="/en/licensing/" label="Read licensing details in English" />
-  <section class="panel"><h2>Disponebla katalogo</h2><p>{available.length} MVP-kantoj estas markitaj kiel disponeblaj por licencado en la publika katalogo.</p><p class="muted">Lanĉa kontrolo plu blokos publikan publikigon ĝis aprobita kontaktmetodo kaj posed-deklaro estos aldonitaj.</p></section>
 </BaseLayout>

@@ -8,6 +8,7 @@ function checkInternalHrefs(route) {
   const page = readFileSync(routePath(route), 'utf8');
   const hrefs = [...page.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
   for (const href of hrefs) {
+    if (href.includes('/kantoj_de_espero_web/kantoj_de_espero_web/')) fail({ check: 'verify:routes', problem: `Double-base internal href found in ${route}: ${href}`, cause: 'A link was passed through the GitHub Pages base helper more than once.', path: routePath(route), fix: 'Pass root-relative route identities to pageHref() exactly once.' });
     if (href.startsWith('/_astro/') || href.startsWith('/kantoj_de_espero_web/')) continue;
     if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) continue;
     if (href.startsWith('/')) fail({ check: 'verify:routes', problem: `Root-relative internal href found in ${route}: ${href}`, cause: 'GitHub Pages project-base deployment would navigate outside /kantoj_de_espero_web/.', path: routePath(route), fix: 'Wrap internal links with pageHref() from src/lib/seo.ts.' });

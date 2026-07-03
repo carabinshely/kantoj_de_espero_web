@@ -41,7 +41,7 @@ for (const playlist of playlists) {
   playlist.song_ids = playlist.song_ids.filter((id) => songIds.has(id));
 }
 
-const siteFacts = {
+const defaultSiteFacts = {
   artistName: 'Kantoj de Espero',
   tagline: 'Modern Esperanto Pop-Rock',
   temporaryCanonicalBase: 'https://carabinshely.github.io/kantoj_de_espero_web/',
@@ -56,6 +56,23 @@ const siteFacts = {
     'Owner-controlled launch facts are intentionally separate from the safe local build.',
     'Add streaming links, contact/support decisions, final domain, public bio, and Esperanto-copy approval before public launch.'
   ]
+};
+
+async function existingJsonOrNull(path) {
+  try {
+    return await readJson(path);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return null;
+    throw error;
+  }
+}
+
+const existingSiteFacts = await existingJsonOrNull(resolve(outDir, 'site-facts.json'));
+const siteFacts = {
+  ...defaultSiteFacts,
+  ...(existingSiteFacts ?? {}),
+  support: { ...defaultSiteFacts.support, ...((existingSiteFacts ?? {}).support ?? {}) },
+  launchNotes: (existingSiteFacts ?? {}).launchNotes ?? defaultSiteFacts.launchNotes
 };
 
 await mkdir(outDir, { recursive: true });

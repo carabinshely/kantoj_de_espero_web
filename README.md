@@ -76,4 +76,12 @@ Stay boring:
 
 ## Deployment note
 
-Astro is configured for GitHub Pages using the temporary base `https://carabinshely.github.io/kantoj_de_espero_web/`. Regenerate and re-verify canonicals if a custom domain replaces it.
+Astro is configured for GitHub Pages using the final custom domain `https://kantojdeespero.com/`.
+
+GitHub Pages needs the committed `public/CNAME` file so the built site publishes a `CNAME` file containing:
+
+```text
+kantojdeespero.com
+```
+
+Cloudflare DNS should point the apex domain to GitHub Pages A records and `www` to `carabinshely.github.io`. Keep DNS records DNS-only until GitHub Pages has verified the custom domain and issued HTTPS.

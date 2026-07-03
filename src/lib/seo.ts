@@ -1,5 +1,4 @@
 import { siteFacts } from './site';
-import type { Lang } from './types';
 
 export function siteUrl(path = '/') {
   const base = import.meta.env.BASE_URL || '/';

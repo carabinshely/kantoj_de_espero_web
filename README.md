@@ -23,7 +23,7 @@ npm run build
 npm run verify
 ```
 
-``npm run verify` builds from committed public data and runs safe-local checks. In the private workspace, run `npm run verify:full` to regenerate public data before verifying:
+`npm run verify` builds from committed public data and runs safe-local checks. In the private workspace, run `npm run verify:full` to regenerate public data before verifying:
 
 - `verify:data`
 - `verify:routes`

@@ -33,7 +33,7 @@ const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : nu
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={siteFacts.artistName} />
-    {safeJsonLd && <script type="application/ld+json" set:html={safeJsonLd} />}
+    {safeJsonLd && <script is:inline type="application/ld+json" set:html={safeJsonLd} />}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

@@ -17,6 +17,7 @@ const { title, description, path, lang = 'en', alternatePath, jsonLd } = Astro.p
 const alternates = alternatePath ? languageAlternates(path, alternatePath) : [{ lang: 'x-default', href: siteUrl('/') }];
 const canonical = siteUrl(path);
 const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${siteFacts.artistName}`;
+const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -32,7 +33,7 @@ const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${s
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={siteFacts.artistName} />
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {safeJsonLd && <script type="application/ld+json" set:html={safeJsonLd} />}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

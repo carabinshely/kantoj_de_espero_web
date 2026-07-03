@@ -1,10 +1,12 @@
 import { readFile } from 'node:fs/promises';
-import { SONG_KEYS, PLAYLIST_KEYS, FORBIDDEN_KEYS } from './catalog-schema.mjs';
+import { FORBIDDEN_KEYS, PLAYLIST_KEYS, SITE_FACT_KEYS, SONG_KEYS, SUPPORT_FACT_KEYS } from './catalog-schema.mjs';
 import { fail, pass } from './report.mjs';
 
 const raw = await readFile('src/data/public-catalog.json', 'utf8').catch(() => null);
 if (!raw) fail({ check: 'verify:data', problem: 'Public catalog is missing.', cause: 'Data export has not run.', path: 'src/data/public-catalog.json', fix: 'Run npm run export:data.' });
 const catalog = JSON.parse(raw);
+const siteFactsRaw = await readFile('src/data/site-facts.json', 'utf8');
+const siteFacts = JSON.parse(siteFactsRaw);
 const allowedSong = new Set(SONG_KEYS);
 const allowedPlaylist = new Set(PLAYLIST_KEYS);
 
@@ -22,6 +24,11 @@ if (catalog.playlists?.length !== 5) fail({ check: 'verify:data', problem: `Expe
 
 for (const song of catalog.songs) checkKeys(song, allowedSong, 'Song', song.id);
 for (const playlist of catalog.playlists) checkKeys(playlist, allowedPlaylist, 'Playlist', playlist.id);
+const siteFactAllowed = new Set(SITE_FACT_KEYS);
+for (const key of Object.keys(siteFacts)) if (!siteFactAllowed.has(key)) fail({ check: 'verify:data', problem: `Site facts contain a non-allowlisted key: ${key}`, cause: 'Owner launch metadata outside the public schema would be published.', path: 'src/data/site-facts.json', fix: `Remove ${key} or add a public-safe schema key intentionally.` });
+const supportAllowed = new Set(SUPPORT_FACT_KEYS);
+for (const key of Object.keys(siteFacts.support ?? {})) if (!supportAllowed.has(key)) fail({ check: 'verify:data', problem: `Support facts contain a non-allowlisted key: ${key}`, cause: 'Nested support metadata outside the public schema would be published.', path: 'src/data/site-facts.json:support', fix: `Remove ${key} or add a public-safe support schema key intentionally.` });
+
 for (const forbidden of FORBIDDEN_KEYS) {
   if (raw.includes(`"${forbidden}"`)) fail({ check: 'verify:data', problem: `Forbidden field name appears in public catalog: ${forbidden}`, cause: 'Private/source-only field crossed the public projection.', path: 'src/data/public-catalog.json', fix: `Remove ${forbidden} from public data output.` });
 }

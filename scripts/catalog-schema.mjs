@@ -19,3 +19,12 @@ export const FORBIDDEN_KEYS = [
 ];
 
 export const STREAMING_PLATFORMS = ['spotify', 'youtube_music', 'apple_music', 'deezer', 'amazon_music', 'hyperfollow'];
+
+
+export const SITE_FACT_KEYS = [
+  'artistName', 'tagline', 'temporaryCanonicalBase', 'finalDomainReady',
+  'disclosurePreferenceReady', 'publicBioReady', 'contactMethod', 'support',
+  'esperantoCopyApproved', 'startHerePlaylistUrl', 'launchNotes'
+];
+
+export const SUPPORT_FACT_KEYS = ['enabled', 'url'];

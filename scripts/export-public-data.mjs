@@ -1,7 +1,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { TEMPORARY_CANONICAL_BASE } from '../site.config.mjs';
-import { SONG_KEYS, PLAYLIST_KEYS, STREAMING_PLATFORMS } from './catalog-schema.mjs';
+import { PLAYLIST_KEYS, SITE_FACT_KEYS, SONG_KEYS, STREAMING_PLATFORMS, SUPPORT_FACT_KEYS } from './catalog-schema.mjs';
 
 const repoRoot = resolve('..');
 const outDir = resolve('src/data');
@@ -68,12 +68,21 @@ async function existingJsonOrNull(path) {
   }
 }
 
-const existingSiteFacts = await existingJsonOrNull(resolve(outDir, 'site-facts.json'));
+function pickExistingSiteFacts(facts) {
+  if (!facts) return {};
+  const picked = Object.fromEntries(SITE_FACT_KEYS.filter((key) => key in facts).map((key) => [key, facts[key]]));
+  if (facts.support && typeof facts.support === 'object') {
+    picked.support = Object.fromEntries(SUPPORT_FACT_KEYS.filter((key) => key in facts.support).map((key) => [key, facts.support[key]]));
+  }
+  return picked;
+}
+
+const existingSiteFacts = pickExistingSiteFacts(await existingJsonOrNull(resolve(outDir, 'site-facts.json')));
 const siteFacts = {
   ...defaultSiteFacts,
-  ...(existingSiteFacts ?? {}),
-  support: { ...defaultSiteFacts.support, ...((existingSiteFacts ?? {}).support ?? {}) },
-  launchNotes: (existingSiteFacts ?? {}).launchNotes ?? defaultSiteFacts.launchNotes
+  ...existingSiteFacts,
+  support: { ...defaultSiteFacts.support, ...(existingSiteFacts.support ?? {}) },
+  launchNotes: existingSiteFacts.launchNotes ?? defaultSiteFacts.launchNotes
 };
 
 await mkdir(outDir, { recursive: true });

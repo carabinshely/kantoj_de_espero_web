@@ -6,6 +6,7 @@
   "scripts": {
     "export:data": "node scripts/export-public-data.mjs",
     "dev": "astro dev",
+    "repair:deps": "npm install --include=optional",
     "build": "astro build",
     "preview": "astro preview",
     "verify:data": "node scripts/verify-data.mjs",

@@ -40,6 +40,16 @@ npm run verify:launch
 
 `verify:launch` is expected to fail until owner-controlled facts are added: final domain, streaming links, contact method, support decision, disclosure preference, public bio, and Esperanto-copy approval.
 
+## Troubleshooting
+
+If Astro fails with `Cannot find native binding` for `@rolldown/binding-*`, the local `node_modules` tree likely has optional native packages for the wrong platform, commonly after switching between Windows and WSL. Repair it from this `web/` directory:
+
+```bash
+npm run repair:deps
+```
+
+Then rerun `npm run verify`. If it still fails, remove `node_modules` and run `npm install` again.
+
 ## Public data flow
 
 The site does not copy normalized records wholesale. `npm run export:data` reads `../data/normalized/` and writes an allowlisted public projection to `src/data/public-catalog.json` plus launch facts in `src/data/site-facts.json`.

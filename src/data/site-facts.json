@@ -1,0 +1,20 @@
+{
+  "artistName": "Kantoj de Espero",
+  "tagline": "Modern Esperanto Pop-Rock",
+  "temporaryCanonicalBase": "https://kantojdeespero.com/",
+  "finalDomainReady": true,
+  "disclosurePreferenceReady": false,
+  "publicBioReady": false,
+  "contactMethod": null,
+  "support": {
+    "enabled": false,
+    "url": null
+  },
+  "esperantoCopyApproved": false,
+  "startHerePlaylistUrl": null,
+  "launchNotes": [
+    "Owner-controlled launch facts are intentionally separate from the safe local build.",
+    "Final domain is kantojdeespero.com with DNS managed in Cloudflare.",
+    "Add streaming links, contact/support decisions, public bio, and Esperanto-copy approval before public launch."
+  ]
+}

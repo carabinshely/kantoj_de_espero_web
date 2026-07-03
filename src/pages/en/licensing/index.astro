@@ -1,0 +1,11 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+import { songs } from '@/lib/site';
+const available = songs.filter((song) => song.license_available);
+---
+<BaseLayout title="Licensing and Custom Songs" description="Licensing and custom-song information for Kantoj de Espero. Contact details are a launch-gated owner fact." path="/en/licensing/" alternatePath="/eo/licencado/" lang="en">
+  <section class="hero"><p class="eyebrow">Licensing</p><h1>Music for Esperanto projects, media, and events.</h1><p class="lede">Selected Kantoj de Espero songs are marked as potentially available for licensing. The public inquiry method will be added before launch.</p></section>
+  <LanguageSwitch href="/eo/licencado/" label="Legu pri licencado Esperante" />
+  <section class="panel"><h2>Available catalog</h2><p>{available.length} MVP songs are marked as license-available in the public catalog.</p><p class="muted">Launch verification will continue to block public release until an approved contact method and ownership statement are added.</p></section>
+</BaseLayout>

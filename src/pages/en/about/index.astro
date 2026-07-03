@@ -1,0 +1,10 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+import { musicGroupJsonLd } from '@/lib/seo';
+---
+<BaseLayout title="About Kantoj de Espero" description="Kantoj de Espero is a modern Esperanto music project with pop-rock songs, lyrics, and themed playlists." path="/en/about/" alternatePath="/eo/pri-ni/" lang="en" jsonLd={musicGroupJsonLd('/en/about/')}>
+  <section class="hero"><p class="eyebrow">About</p><h1>A modern Esperanto music project.</h1><p class="lede">Kantoj de Espero presents original Esperanto songs with public lyrics, themed playlists, and context for listeners discovering the language through music.</p></section>
+  <LanguageSwitch href="/eo/pri-ni/" label="Legu pri ni Esperante" />
+  <section class="panel"><h2>What this site is for</h2><p>The music remains centered on streaming platforms. This website gives listeners and search engines clean bilingual context: song pages, lyrics, playlist framing, and lightweight paths to licensing or custom-song interest.</p></section>
+</BaseLayout>

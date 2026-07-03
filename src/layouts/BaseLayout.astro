@@ -1,0 +1,64 @@
+---
+import { pageHref, siteUrl, languageAlternates } from '@/lib/seo';
+import { languages, siteFacts } from '@/lib/site';
+import '@/styles/global.css';
+import type { Lang } from '@/lib/types';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  lang?: Lang;
+  alternatePath?: string;
+  jsonLd?: unknown;
+}
+
+const { title, description, path, lang = 'en', alternatePath, jsonLd } = Astro.props;
+const alternates = alternatePath ? languageAlternates(path, alternatePath) : [{ lang: 'x-default', href: siteUrl('/') }];
+const canonical = siteUrl(path);
+const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${siteFacts.artistName}`;
+const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
+const primaryNav = lang === 'eo'
+  ? { aria: 'Ĉefa navigado', songs: 'Kantoj', playlists: 'Ludlistoj', licensing: 'Licencado', about: 'Pri ni', skip: 'Salti al enhavo' }
+  : { aria: 'Primary navigation', songs: 'Songs', playlists: 'Playlists', licensing: 'Licensing', about: 'About', skip: 'Skip to content' };
+const langHome = languages[lang].home;
+const otherLang: Lang = lang === 'en' ? 'eo' : 'en';
+const otherLangHome = languages[otherLang].home;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.lang} href={alt.href} />)}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={siteFacts.artistName} />
+    {safeJsonLd && <script is:inline type="application/ld+json" set:html={safeJsonLd} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{primaryNav.skip}</a>
+    <header class="site-header">
+      <a class="brand" href={pageHref("/")}>{siteFacts.artistName}</a>
+      <nav aria-label={primaryNav.aria}>
+        <a href={pageHref(langHome)}>{languages[lang].label}</a>
+        <a href={pageHref(otherLangHome)}>{languages[otherLang].label}</a>
+        <a href={pageHref(languages[lang].songs)}>{primaryNav.songs}</a>
+        <a href={pageHref(languages[lang].playlists)}>{primaryNav.playlists}</a>
+        <a href={pageHref(languages[lang].licensing)}>{primaryNav.licensing}</a>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>{siteFacts.artistName} — {siteFacts.tagline}</p>
+      <p><a href={pageHref(languages[lang].about)}>{primaryNav.about}</a> · <a href={pageHref(languages[lang].licensing)}>{primaryNav.licensing}</a></p>
+    </footer>
+  </body>
+</html>

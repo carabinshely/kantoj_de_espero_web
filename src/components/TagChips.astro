@@ -1,0 +1,5 @@
+---
+interface Props { values: string[]; label: string }
+const { values, label } = Astro.props;
+---
+{values?.length > 0 && <div class="chips" aria-label={label}>{values.map((value) => <span>{value}</span>)}</div>}

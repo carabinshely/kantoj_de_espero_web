@@ -1,0 +1,12 @@
+---
+import { platformLabel, realLinks } from '@/lib/site';
+import type { StreamingLinks } from '@/lib/types';
+interface Props { links: StreamingLinks; label?: string }
+const { links, label = 'Listen' } = Astro.props;
+const entries = realLinks(links);
+---
+{entries.length > 0 && (
+  <div class="listen-links" aria-label={label}>
+    {entries.map(([platform, url]) => <a class="button" href={url} rel="noopener noreferrer">{platformLabel(platform)}</a>)}
+  </div>
+)}

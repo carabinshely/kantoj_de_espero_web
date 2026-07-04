@@ -13,6 +13,27 @@ if (!facts.disclosurePreferenceReady) launchFail('Public disclosure preference i
 if (!facts.contactMethod) launchFail('Licensing/custom-song contact method is missing.', 'Licensing CTA cannot launch without an approved contact route or method.', 'src/data/site-facts.json:contactMethod', 'Add approved contact method or remove launch licensing CTA emphasis.');
 if (!facts.esperantoCopyApproved) launchFail('Esperanto draft copy is not marked owner-approved or fluent-reviewed.', 'Esperanto copy remains draft in normalized data.', 'src/data/site-facts.json:esperantoCopyApproved', 'Review/approve Esperanto copy and mark it ready.');
 if (!facts.startHerePlaylistUrl) launchFail('Start Here playlist URL is missing.', 'Homepage cannot promote a primary Start Here streaming CTA without a real destination.', 'src/data/site-facts.json:startHerePlaylistUrl', 'Add the real Spotify/all-platform URL before launch.');
+const START_HERE_PLAYLIST_ID = "start-here-modern-esperanto-pop-rock";
+const startHerePlaylist = catalog.playlists.find(function (playlist) {
+  return playlist.id === START_HERE_PLAYLIST_ID;
+});
+const startHerePlaylistHasPublicUrl = startHerePlaylist
+  ? Object.values(startHerePlaylist.streaming_links || {}).some(function (url) {
+      return typeof url === "string" && url.startsWith("http");
+    })
+  : false;
+
+if (!startHerePlaylistHasPublicUrl) {
+  launchFail(
+    "Start Here public catalog playlist is missing a public streaming URL",
+    startHerePlaylist
+      ? "all streaming_links entries are empty or non-http"
+      : "playlist id " + START_HERE_PLAYLIST_ID + " was not found",
+    "src/data/public-catalog.json:playlists." + START_HERE_PLAYLIST_ID + ".streaming_links",
+    "Add the owner-supplied public Start Here playlist URL to the normalized playlist streaming_links and rerun export:data.",
+  );
+}
+
 for (const song of catalog.songs) {
   const hasLink = Object.values(song.streaming_links).some((url) => typeof url === 'string' && url.startsWith('http'));
   if (!hasLink) launchFail(`Song ${song.id} has no streaming URL.`, 'Visible listen CTAs require real URLs or must remain hidden.', `src/data/public-catalog.json:${song.id}`, 'Add at least one real platform URL or keep listen buttons hidden for this song.');

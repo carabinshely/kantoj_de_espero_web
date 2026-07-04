@@ -60,8 +60,18 @@ export function playlistsForSong(song: PublicSong) {
   return playlists.filter((playlist) => ids.has(playlist.id));
 }
 
+function isHttpUrl(value: unknown): value is string {
+  if (Object.prototype.toString.call(value) !== '[object String]') return false;
+  try {
+    const url = new URL(value as string);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export function realLinks(links: StreamingLinks) {
-  return Object.entries(links).filter(([, url]) => typeof url === 'string' && url.startsWith('http')) as [keyof StreamingLinks, string][];
+  return Object.entries(links).filter(([, url]) => isHttpUrl(url)) as [keyof StreamingLinks, string][];
 }
 
 export function platformLabel(platform: string) {

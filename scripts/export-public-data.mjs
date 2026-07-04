@@ -15,8 +15,18 @@ function pick(record, keys) {
   return Object.fromEntries(keys.map((key) => [key, record[key] ?? null]));
 }
 
+function isHttpUrl(value) {
+  if (Object.prototype.toString.call(value) !== '[object String]') return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function cleanLinks(links = {}) {
-  return Object.fromEntries(STREAMING_PLATFORMS.map((platform) => [platform, typeof links[platform] === 'string' && links[platform].startsWith('http') ? links[platform] : null]));
+  return Object.fromEntries(STREAMING_PLATFORMS.map((platform) => [platform, isHttpUrl(links[platform]) ? links[platform] : null]));
 }
 
 const songsRaw = await readJson(resolve(repoRoot, 'data/normalized/songs.json'));

@@ -4,6 +4,8 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-04
+
 ### Added
 - Added `npm run smoke:local` as a deterministic static smoke path for WSL/browser-QA environments where the live Astro dev server is slow or unreachable.
 

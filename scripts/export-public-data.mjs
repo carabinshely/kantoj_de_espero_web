@@ -40,6 +40,13 @@ const playlists = playlistsRaw
   .filter((playlist) => playlist.site_status === 'mvp')
   .map((playlist) => ({ ...pick(playlist, PLAYLIST_KEYS), streaming_links: cleanLinks(playlist.streaming_links) }));
 
+const START_HERE_PLAYLIST_ID = 'start-here-modern-esperanto-pop-rock';
+const startHerePlaylist = playlists.find((playlist) => playlist.id === START_HERE_PLAYLIST_ID);
+const startHerePlaylistUrl = startHerePlaylist?.streaming_links?.spotify ?? null;
+if (!isHttpUrl(startHerePlaylistUrl)) {
+  throw new Error(`Expected ${START_HERE_PLAYLIST_ID} to have a canonical Spotify playlist URL`);
+}
+
 if (songs.length !== 20) throw new Error(`Expected 20 MVP songs, found ${songs.length}`);
 if (playlists.length !== 5) throw new Error(`Expected 5 MVP playlists, found ${playlists.length}`);
 
@@ -62,10 +69,11 @@ const defaultSiteFacts = {
   contactMethod: null,
   support: { enabled: false, url: null },
   esperantoCopyApproved: false,
-  startHerePlaylistUrl: null,
+  startHerePlaylistUrl,
   launchNotes: [
-    'Owner-controlled launch facts are intentionally separate from the safe local build.',
-    'Add streaming links, contact/support decisions, final domain, public bio, and Esperanto-copy approval before public launch.'
+    'Final domain is kantojdeespero.com with DNS managed in Cloudflare.',
+    'Public bio, disclosure preference, licensing contact, Esperanto MVP copy, and the Start Here playlist URL are owner-approved.',
+    'Support routes remain omitted until a support URL and copy are approved.'
   ]
 };
 
@@ -92,7 +100,8 @@ const siteFacts = {
   ...defaultSiteFacts,
   ...existingSiteFacts,
   support: { ...defaultSiteFacts.support, ...(existingSiteFacts.support ?? {}) },
-  launchNotes: existingSiteFacts.launchNotes ?? defaultSiteFacts.launchNotes
+  startHerePlaylistUrl,
+  launchNotes: defaultSiteFacts.launchNotes
 };
 
 await mkdir(outDir, { recursive: true });

@@ -48,3 +48,20 @@ export interface PublicPlaylist {
   site_status: 'mvp';
   streaming_links: StreamingLinks;
 }
+
+export interface SiteFacts {
+  artistName: string;
+  tagline: string;
+  temporaryCanonicalBase: string;
+  finalDomainReady: boolean;
+  disclosurePreferenceReady: boolean;
+  publicBioReady: boolean;
+  contactMethod: string | null;
+  support: {
+    enabled: boolean;
+    url: string | null;
+  };
+  esperantoCopyApproved: boolean;
+  startHerePlaylistUrl: string | null;
+  launchNotes: string[];
+}

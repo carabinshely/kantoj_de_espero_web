@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://carabinshely.github.io/kantoj_de_espero_web/sitemap-index.xml
+Sitemap: https://kantojdeespero.com/sitemap-index.xml

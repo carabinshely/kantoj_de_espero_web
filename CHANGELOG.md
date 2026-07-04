@@ -2,6 +2,20 @@
 
 All notable changes to the Kantoj de Espero public website are documented here.
 
+## [Unreleased]
+
+## [0.1.1] - 2026-07-04
+
+### Added
+- Added `npm run smoke:local` as a deterministic static smoke path for WSL/browser-QA environments where the live Astro dev server is slow or unreachable.
+
+### Changed
+- Updated launch readiness so `verify:launch` now reports only the real owner-side Start Here playlist URL blocker when public bio, disclosure, contact, Esperanto approval, and MVP song links are current.
+- Polished mobile navigation, card link affordance, and stacked song-page spacing after design review.
+
+### Fixed
+- Expanded route and privacy verification to catch stale public-copy and privacy leaks in the launch-facing build output.
+
 ## [0.1.0] - 2026-07-03
 
 ### Added

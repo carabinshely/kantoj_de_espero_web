@@ -13,13 +13,26 @@ Prerequisites:
 ```bash
 npm install
 npm run export:data
-npm run dev
+npm run dev -- --host 127.0.0.1
 ```
+
+If you are switching between Windows and WSL, or the first build fails with a missing `@rolldown/binding-*` native package, repair optional native dependencies before running dev or verify:
+
+```bash
+npm run repair:deps
+```
+
+Deterministic static smoke path, useful when the live dev server is slow or unreachable in WSL/browser-QA environments:
+
+```bash
+npm run smoke:local
+```
+
+`smoke:local` builds the site and probes the rendered home, About, Licensing, and custom 404 files from `dist/`.
 
 Safe local build and verification:
 
 ```bash
-npm run build
 npm run verify
 ```
 
@@ -30,7 +43,7 @@ npm run verify
 - `verify:seo`
 - `verify:privacy`
 
-`npm run export:data` is intentionally a private-workspace command because it reads `../data/normalized/`. A standalone public `web/` checkout can still run `npm install`, `npm run build`, and `npm run verify` against committed public data.
+`npm run export:data` is intentionally a private-workspace command because it reads `../data/normalized/`. A standalone public `web/` checkout can still run `npm install`, `npm run build`, `npm run smoke:local`, and `npm run verify` against committed public data.
 
 Launch readiness is separate:
 
@@ -38,7 +51,7 @@ Launch readiness is separate:
 npm run verify:launch
 ```
 
-`verify:launch` is expected to fail until owner-controlled facts are added: final domain, streaming links, contact method, support decision, disclosure preference, public bio, and Esperanto-copy approval.
+After the launch-fact reconciliation slice, `verify:launch` should collapse from stale public-data blockers to either PASS or exactly one real owner-side blocker for `startHerePlaylistUrl`. If it reports missing public bio, disclosure preference, contact method, Esperanto approval, or MVP song streaming links, the public data is stale and should be regenerated or fixed.
 
 ## Troubleshooting
 
@@ -48,7 +61,11 @@ If Astro fails with `Cannot find native binding` for `@rolldown/binding-*`, the 
 npm run repair:deps
 ```
 
-Then rerun `npm run verify`. If it still fails, remove `node_modules` and run `npm install` again.
+Then rerun `npm run smoke:local` or `npm run verify`. If it still fails, remove `node_modules` and run `npm install` again.
+
+If `npm run dev -- --host 127.0.0.1` does not become reachable quickly in WSL, use `npm run smoke:local` for a deterministic static check, then try `npm run preview -- --host 127.0.0.1` after `npm run build` if you need a local HTTP server.
+
+After implementing launch-facing changes, rerun `/devex-review` or an equivalent timed manual pass and compare time-to-hello-world against the target: under 2 minutes for `smoke:local`, and 2 to 5 minutes for a healthy full `npm run verify`.
 
 ## Public data flow
 

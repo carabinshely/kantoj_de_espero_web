@@ -3,8 +3,20 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import LanguageSwitch from '@/components/LanguageSwitch.astro';
 import { musicGroupJsonLd } from '@/lib/seo';
 ---
-<BaseLayout title="Pri Kantoj de Espero" description="Kantoj de Espero estas moderna Esperanta muzika projekto kun poprokaj kantoj, tekstoj kaj temaj ludlistoj." path="/eo/pri-ni/" alternatePath="/en/about/" lang="eo" jsonLd={musicGroupJsonLd('/eo/pri-ni/')}>
-  <section class="hero"><p class="eyebrow">Pri ni</p><h1>Moderna Esperanta muzika projekto.</h1><p class="lede">Kantoj de Espero prezentas originalajn Esperantajn kantojn kun publikaj tekstoj, temaj ludlistoj kaj kunteksto por aŭskultantoj kiuj malkovras la lingvon per muziko.</p></section>
+<BaseLayout title="Pri Kantoj de Espero" description="Kantoj de Espero estas moderna Esperanta poproka projekto kreita en 2024 por freŝa, kundividebla Esperanta muziko." path="/eo/pri-ni/" alternatePath="/en/about/" lang="eo" jsonLd={musicGroupJsonLd('/eo/pri-ni/')}>
+  <section class="hero">
+    <p class="eyebrow">Pri ni</p>
+    <h1>Moderna Esperanta poproka projekto.</h1>
+    <p class="lede">Freŝaj, nuntempaj Esperantaj kantoj por aŭskultantoj, lernantoj, kluboj, kreantoj kaj muzikaj kunlaboroj.</p>
+  </section>
+  <section class="panel">
+    <h2>Publika biografio</h2>
+    <p>Kantoj de Espero estas moderna Esperanta poproka projekto kreita en 2024 por alporti freŝan, nuntempan energion al la Esperanto-komunumo. Ĝi kreskis el esplorado de modernaj AI-muzikaj iloj kaj deziro igi Esperanton sentiĝi viva, melodia kaj facile kundividebla.</p>
+  </section>
+  <section class="panel">
+    <h2>Por kio ekzistas ĉi tiu retejo</h2>
+    <p>La muziko restas centrita sur aŭskultaj platformoj. Ĉi tiu retejo donas klaran dulingvan kuntekston: kantopaĝoj, tekstoj, ludlistaj klarigoj kaj malpezaj vojoj al licencado aŭ specialaj kantoj.</p>
+    <p class="muted">La projekto travideble traktas sian modernan virtualan produktan kuntekston sen igi produktajn ilojn la ĉefa prezento de la muziko.</p>
+  </section>
   <LanguageSwitch href="/en/about/" label="Read about us in English" />
-  <section class="panel"><h2>Por kio ekzistas ĉi tiu retejo</h2><p>La muziko restas centrita sur aŭskultaj platformoj. Ĉi tiu retejo donas klaran dulingvan kuntekston: kantopaĝoj, tekstoj, ludlistaj klarigoj kaj malpezaj vojoj al licencado aŭ specialaj kantoj.</p></section>
 </BaseLayout>

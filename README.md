@@ -93,6 +93,7 @@ Stay boring:
 3. Commit `package-lock.json` after dependency changes.
 4. Upgrade Astro/dependencies in small batches.
 5. After every upgrade, run `npm run build`, `npm run verify`, and then inspect `npm run verify:launch` blockers.
+6. Treat GitHub Actions runtime deprecation warnings as release blockers. Update the affected action or explicitly opt into the supported runtime before merging, so Pages deploys stay warning-clean.
 
 ## Feedback and decision channels
 

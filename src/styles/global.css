@@ -57,7 +57,19 @@ p { margin: 0 0 1rem; }
 @media (max-width: 760px) {
   .two-col { grid-template-columns: 1fr; }
   .site-header { align-items: flex-start; }
-  nav { gap: .45rem .65rem; font-size: .95rem; }
+  nav { gap: .5rem; font-size: .95rem; }
+  nav a {
+    min-height: 44px;
+    padding: 0 .7rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    text-decoration: none;
+    background: color-mix(in srgb, var(--panel), transparent 25%);
+  }
+  nav a[aria-current="page"] {
+    background: color-mix(in srgb, var(--accent), transparent 82%);
+    border-color: color-mix(in srgb, var(--accent), transparent 40%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

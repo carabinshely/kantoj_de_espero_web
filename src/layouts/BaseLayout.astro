@@ -24,6 +24,13 @@ const primaryNav = lang === 'eo'
 const langHome = languages[lang].home;
 const otherLang: Lang = lang === 'en' ? 'eo' : 'en';
 const otherLangHome = languages[otherLang].home;
+const navItems = [
+  { href: langHome, label: languages[lang].label, active: path === langHome },
+  { href: otherLangHome, label: languages[otherLang].label, active: false },
+  { href: languages[lang].songs, label: primaryNav.songs, active: path.startsWith(languages[lang].songs) },
+  { href: languages[lang].playlists, label: primaryNav.playlists, active: path.startsWith(languages[lang].playlists) },
+  { href: languages[lang].licensing, label: primaryNav.licensing, active: path.startsWith(languages[lang].licensing) },
+];
 ---
 <!doctype html>
 <html lang={lang}>
@@ -46,11 +53,7 @@ const otherLangHome = languages[otherLang].home;
     <header class="site-header">
       <a class="brand" href={pageHref("/")}>{siteFacts.artistName}</a>
       <nav aria-label={primaryNav.aria}>
-        <a href={pageHref(langHome)}>{languages[lang].label}</a>
-        <a href={pageHref(otherLangHome)}>{languages[otherLang].label}</a>
-        <a href={pageHref(languages[lang].songs)}>{primaryNav.songs}</a>
-        <a href={pageHref(languages[lang].playlists)}>{primaryNav.playlists}</a>
-        <a href={pageHref(languages[lang].licensing)}>{primaryNav.licensing}</a>
+        {navItems.map((item) => <a href={pageHref(item.href)} aria-current={item.active ? 'page' : undefined}>{item.label}</a>)}
       </nav>
     </header>
     <main id="main">

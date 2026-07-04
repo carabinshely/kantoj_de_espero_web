@@ -25,6 +25,7 @@ a:focus-visible { outline: 3px solid var(--accent); outline-offset: .18rem; bord
 .brand { font-weight: 800; letter-spacing: .03em; text-decoration: none; }
 .brand, nav a, .site-footer a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
 nav { display: flex; gap: .85rem; flex-wrap: wrap; color: var(--muted); }
+nav a[aria-current="page"] { color: var(--text); text-decoration-thickness: .16em; text-decoration-color: var(--accent); }
 main { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; }
 .hero { padding: clamp(3rem, 8vw, 7rem) 0; display: grid; gap: 1.5rem; }
 .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .16em; font-size: .8rem; font-weight: 700; }

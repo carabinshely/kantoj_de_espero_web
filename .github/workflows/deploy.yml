@@ -16,6 +16,12 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# GitHub Actions started forcing deprecated Node 20 JavaScript actions onto
+# Node 24 in 2026. Opt in explicitly so runtime deprecation warnings stay
+# visible as blockers instead of becoming tolerated deploy noise.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest

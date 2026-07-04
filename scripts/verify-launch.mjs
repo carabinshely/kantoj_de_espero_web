@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import facts from '../src/data/site-facts.json' with { type: 'json' };
 import catalog from '../src/data/public-catalog.json' with { type: 'json' };
@@ -37,7 +37,9 @@ if (facts.startHerePlaylistUrl !== START_HERE_SPOTIFY_URL) launchFail('Start Her
 const startHerePlaylist = catalog.playlists.find(function (playlist) {
   return playlist.id === START_HERE_PLAYLIST_ID;
 });
-const startHerePlaylistHasCanonicalUrl = startHerePlaylist?.streaming_links?.spotify === START_HERE_SPOTIFY_URL;
+const startHerePlaylistUrl = startHerePlaylist?.streaming_links?.spotify ?? null;
+const startHerePlaylistHasCanonicalUrl = startHerePlaylistUrl === START_HERE_SPOTIFY_URL;
+if (facts.startHerePlaylistUrl !== startHerePlaylistUrl) launchFail('Start Here site fact does not mirror the public catalog playlist URL.', 'Exporter/site-facts drift would make launch CTAs depend on divergent sources.', 'src/data/site-facts.json:startHerePlaylistUrl', 'Rerun export:data so site facts derive from the canonical Start Here playlist.');
 
 if (!startHerePlaylistHasCanonicalUrl) {
   launchFail(
@@ -79,8 +81,62 @@ for (const homepage of homepageSources) {
   }
 }
 
+
+const renderedRoutes = [
+  {
+    label: 'EN homepage',
+    path: resolve('dist/en/index.html'),
+    mustInclude: START_HERE_ROUTES.en,
+    mustExclude: START_HERE_SPOTIFY_URL,
+  },
+  {
+    label: 'EO homepage',
+    path: resolve('dist/eo/index.html'),
+    mustInclude: START_HERE_ROUTES.eo,
+    mustExclude: START_HERE_SPOTIFY_URL,
+  },
+  {
+    label: 'EN Start Here playlist page',
+    path: resolve('dist/en/playlists/start-here-modern-esperanto-pop-rock/index.html'),
+    mustInclude: START_HERE_SPOTIFY_URL,
+  },
+  {
+    label: 'EO Start Here playlist page',
+    path: resolve('dist/eo/ludlistoj/komencu-ci-tie-modernaj-esperantaj-poprokaj-kantoj/index.html'),
+    mustInclude: START_HERE_SPOTIFY_URL,
+  },
+];
+for (const route of renderedRoutes) {
+  if (!existsSync(route.path)) {
+    launchFail(
+      route.label + ' build output is missing.',
+      'Rendered launch-path assertions require current Astro build output.',
+      route.path,
+      'Run npm run build before npm run verify:launch.',
+    );
+    continue;
+  }
+  const html = readFileSync(route.path, 'utf8');
+  if (route.mustInclude && !html.includes(route.mustInclude)) {
+    launchFail(
+      route.label + ' does not render the required Start Here launch target.',
+      'The launch gate must prove the rendered homepage -> internal page -> Spotify path.',
+      route.path,
+      'Rebuild after ensuring the homepage points internally and the Start Here page receives the Spotify playlist URL.',
+    );
+  }
+  if (route.mustExclude && html.includes(route.mustExclude)) {
+    launchFail(
+      route.label + ' renders a direct Spotify playlist link.',
+      'Homepages must preserve bilingual site context before sending listeners to Spotify.',
+      route.path,
+      'Remove direct homepage Spotify links; keep Spotify on the internal Start Here playlist page.',
+    );
+  }
+}
+
 if (launchBlockers === 0) {
-  pass('verify:launch', 'owner-controlled launch facts and Start Here homepage path are ready');
+  pass('verify:launch', 'owner-controlled launch facts and rendered Start Here path are ready');
 } else {
   console.error(`[verify:launch] ${launchBlockers} launch blocker(s) found; safe local build may still be valid.`);
 }

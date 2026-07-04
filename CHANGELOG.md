@@ -4,6 +4,15 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-04
+
+### Changed
+- Made launch readiness stricter: Start Here now requires a real `http` or `https` playlist URL in both site facts and exported playlist streaming links before `verify:launch` can pass.
+- Improved mobile navigation touch targets so small-screen visitors can scan and tap the main sections more easily.
+
+### Fixed
+- Rejected malformed streaming URLs such as `httpx://` during export, launch verification, and rendered listen-link filtering.
+
 ## [0.1.1] - 2026-07-04
 
 ### Added

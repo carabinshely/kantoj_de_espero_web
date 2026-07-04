@@ -51,7 +51,7 @@ Launch readiness is separate:
 npm run verify:launch
 ```
 
-After the launch-fact reconciliation slice, `verify:launch` should collapse from stale public-data blockers to either PASS or exactly one real owner-side blocker for `startHerePlaylistUrl`. If it reports missing public bio, disclosure preference, contact method, Esperanto approval, or MVP song streaming links, the public data is stale and should be regenerated or fixed.
+After the launch-fact reconciliation slice, `verify:launch` should collapse from stale public-data blockers to either PASS or the real owner-side Start Here blockers: the direct `startHerePlaylistUrl` site fact and/or the exported Start Here playlist `streaming_links` entry. If it reports missing public bio, disclosure preference, contact method, Esperanto approval, or MVP song streaming links, the public data is stale and should be regenerated or fixed.
 
 ## Troubleshooting
 

@@ -13,7 +13,7 @@ const featured = songs.filter((song) => song.featured).slice(0, 6);
     <p class="eyebrow">Start here</p>
     <h1>Modern Esperanto songs with lyrics and playlists.</h1>
     <p class="lede">Explore the 20-song MVP catalog from Kantoj de Espero, organized for listeners, learners, clubs, creators, and music supervisors.</p>
-    <div class="actions"><a class="button accent" href={pageHref("/en/songs/")}>Browse songs</a><a class="button" href={pageHref("/en/playlists/")}>Browse playlists</a></div>
+    <div class="actions"><a class="button accent" href={pageHref("/en/playlists/start-here-modern-esperanto-pop-rock/")}>Start with the playlist</a><a class="button" href={pageHref("/en/songs/")}>Browse songs</a></div>
   </section>
   <LanguageSwitch href="/eo/" label="Legu Esperante" />
   <section><h2>Featured songs</h2><div class="grid">{featured.map((song) => <SongCard song={song} lang="en" />)}</div></section>

@@ -11,11 +11,10 @@
     "url": null
   },
   "esperantoCopyApproved": true,
-  "startHerePlaylistUrl": null,
+  "startHerePlaylistUrl": "https://open.spotify.com/playlist/5rbdelkCrs26Tjc8y2gqWD",
   "launchNotes": [
     "Final domain is kantojdeespero.com with DNS managed in Cloudflare.",
-    "Public bio, disclosure preference, licensing contact, and Esperanto MVP copy are owner-approved.",
-    "Support routes remain omitted until a support URL and copy are approved.",
-    "Start Here playlist streaming URL remains the only owner-side launch blocker unless the CTA is intentionally hidden."
+    "Public bio, disclosure preference, licensing contact, Esperanto MVP copy, and the Start Here playlist URL are owner-approved.",
+    "Support routes remain omitted until a support URL and copy are approved."
   ]
 }

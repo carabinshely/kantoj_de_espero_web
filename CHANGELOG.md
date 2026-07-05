@@ -4,6 +4,19 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-07-05
+
+### Added
+- Added `npm run preview:tmp` so browser QA can launch a reachable Astro preview from WSL checkouts under `/mnt/c`.
+
+### Changed
+- Let listeners start from the homepage and land on the internal Start Here playlist page before continuing to the approved Spotify playlist.
+- Expanded `verify:launch` so it rebuilds and checks the rendered English and Esperanto Start Here CTA path.
+- Tightened homepage hero rhythm and card-link affordance after design review.
+
+### Fixed
+- Kept the Start Here site fact, exported playlist streaming link, and rendered launch CTA path in sync with the approved Spotify playlist URL.
+
 ## [0.1.2] - 2026-07-04
 
 ### Changed

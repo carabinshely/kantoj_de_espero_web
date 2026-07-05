@@ -51,7 +51,13 @@ Launch readiness is separate:
 npm run verify:launch
 ```
 
-After the launch-fact reconciliation slice, `verify:launch` should collapse from stale public-data blockers to either PASS or the real owner-side Start Here blockers: the direct `startHerePlaylistUrl` site fact and/or the exported Start Here playlist `streaming_links` entry. If it reports missing public bio, disclosure preference, contact method, Esperanto approval, or MVP song streaming links, the public data is stale and should be regenerated or fixed.
+`verify:launch` runs a fresh Astro build and proves the launch listening path: English and Esperanto homepages link first to the internal Start Here playlist pages, and those playlist pages expose the approved Spotify playlist URL. If it reports missing public bio, disclosure preference, contact method, Esperanto approval, Start Here playlist URL drift, or MVP song streaming links, regenerate public data with `npm run export:data` in the private workspace or fix the launch fact before release.
+
+The intended listener path is:
+
+```text
+Homepage primary CTA -> internal Start Here playlist page -> Spotify playlist
+```
 
 ## Troubleshooting
 
@@ -63,7 +69,13 @@ npm run repair:deps
 
 Then rerun `npm run smoke:local` or `npm run verify`. If it still fails, remove `node_modules` and run `npm install` again.
 
-If `npm run dev -- --host 127.0.0.1` does not become reachable quickly in WSL, use `npm run smoke:local` for a deterministic static check, then try `npm run preview -- --host 127.0.0.1` after `npm run build` if you need a local HTTP server.
+If `npm run dev -- --host 127.0.0.1` or `npm run preview -- --host 127.0.0.1` does not become reachable quickly from a WSL checkout under `/mnt/c`, use `npm run smoke:local` for a deterministic static check. If you need a browser-reachable Astro preview, mirror the site to Linux temp storage and serve from there:
+
+```bash
+npm run preview:tmp -- --host 127.0.0.1 --port 4329
+```
+
+`preview:tmp` copies the public website repo to `/tmp/kantoj-de-espero-preview`, reuses `/tmp` dependencies when available, builds, and starts Astro preview from the Linux filesystem. This avoids WSL/Windows filesystem I/O hangs seen when Astro preview starts directly under `/mnt/c`.
 
 After implementing launch-facing changes, rerun `/devex-review` or an equivalent timed manual pass and compare time-to-hello-world against the target: under 2 minutes for `smoke:local`, and 2 to 5 minutes for a healthy full `npm run verify`.
 

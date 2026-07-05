@@ -17,7 +17,8 @@
     "verify": "npm run build && npm run typecheck && npm run verify:data && npm run verify:routes && npm run verify:seo && npm run verify:privacy",
     "typecheck": "tsc --noEmit",
     "verify:full": "npm run export:data && npm run verify",
-    "smoke:local": "npm run build && node scripts/smoke-local.mjs"
+    "smoke:local": "npm run build && node scripts/smoke-local.mjs",
+    "preview:tmp": "node scripts/preview-tmp.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

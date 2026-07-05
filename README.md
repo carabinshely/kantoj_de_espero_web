@@ -63,7 +63,13 @@ npm run repair:deps
 
 Then rerun `npm run smoke:local` or `npm run verify`. If it still fails, remove `node_modules` and run `npm install` again.
 
-If `npm run dev -- --host 127.0.0.1` does not become reachable quickly in WSL, use `npm run smoke:local` for a deterministic static check, then try `npm run preview -- --host 127.0.0.1` after `npm run build` if you need a local HTTP server.
+If `npm run dev -- --host 127.0.0.1` or `npm run preview -- --host 127.0.0.1` does not become reachable quickly from a WSL checkout under `/mnt/c`, use `npm run smoke:local` for a deterministic static check. If you need a browser-reachable Astro preview, mirror the site to Linux temp storage and serve from there:
+
+```bash
+npm run preview:tmp -- --host 127.0.0.1 --port 4329
+```
+
+`preview:tmp` copies the public website repo to `/tmp/kantoj-de-espero-preview`, reuses `/tmp` dependencies when available, builds, and starts Astro preview from the Linux filesystem. This avoids WSL/Windows filesystem I/O hangs seen when Astro preview starts directly under `/mnt/c`.
 
 After implementing launch-facing changes, rerun `/devex-review` or an equivalent timed manual pass and compare time-to-hello-world against the target: under 2 minutes for `smoke:local`, and 2 to 5 minutes for a healthy full `npm run verify`.
 

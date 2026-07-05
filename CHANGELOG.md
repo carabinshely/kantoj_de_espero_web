@@ -4,6 +4,13 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+### Added
+- Added `npm run preview:tmp` for browser-reachable Astro preview audits from WSL checkouts under `/mnt/c`.
+
+### Changed
+- Made the homepage launch path point listeners to the internal Start Here playlist page first, then onward to the approved Spotify playlist.
+- Expanded `verify:launch` so it rebuilds and checks the rendered English and Esperanto Start Here CTA path.
+
 ## [0.1.2] - 2026-07-04
 
 ### Changed

@@ -51,7 +51,13 @@ Launch readiness is separate:
 npm run verify:launch
 ```
 
-After the launch-fact reconciliation slice, `verify:launch` should collapse from stale public-data blockers to either PASS or the real owner-side Start Here blockers: the direct `startHerePlaylistUrl` site fact and/or the exported Start Here playlist `streaming_links` entry. If it reports missing public bio, disclosure preference, contact method, Esperanto approval, or MVP song streaming links, the public data is stale and should be regenerated or fixed.
+`verify:launch` runs a fresh Astro build and proves the launch listening path: English and Esperanto homepages link first to the internal Start Here playlist pages, and those playlist pages expose the approved Spotify playlist URL. If it reports missing public bio, disclosure preference, contact method, Esperanto approval, Start Here playlist URL drift, or MVP song streaming links, regenerate public data with `npm run export:data` in the private workspace or fix the launch fact before release.
+
+The intended listener path is:
+
+```text
+Homepage primary CTA -> internal Start Here playlist page -> Spotify playlist
+```
 
 ## Troubleshooting
 

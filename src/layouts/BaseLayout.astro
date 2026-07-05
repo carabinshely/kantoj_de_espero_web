@@ -1,5 +1,5 @@
 ---
-import { pageHref, siteUrl, languageAlternates } from '@/lib/seo';
+import { pageHref, siteUrl, languageAlternates, defaultShareImageUrl, DEFAULT_SHARE_IMAGE_WIDTH, DEFAULT_SHARE_IMAGE_HEIGHT } from '@/lib/seo';
 import { languages, siteFacts } from '@/lib/site';
 import '@/styles/global.css';
 import type { Lang } from '@/lib/types';
@@ -16,6 +16,7 @@ interface Props {
 const { title, description, path, lang = 'en', alternatePath, jsonLd } = Astro.props;
 const alternates = alternatePath ? languageAlternates(path, alternatePath) : [{ lang: 'x-default', href: siteUrl('/') }];
 const canonical = siteUrl(path);
+const shareImageUrl = defaultShareImageUrl();
 const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${siteFacts.artistName}`;
 const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
 const primaryNav = lang === 'eo'
@@ -46,6 +47,11 @@ const navItems = [
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={siteFacts.artistName} />
+    <meta property="og:image" content={shareImageUrl} />
+    <meta property="og:image:width" content={String(DEFAULT_SHARE_IMAGE_WIDTH)} />
+    <meta property="og:image:height" content={String(DEFAULT_SHARE_IMAGE_HEIGHT)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={shareImageUrl} />
     {safeJsonLd && <script is:inline type="application/ld+json" set:html={safeJsonLd} />}
   </head>
   <body>

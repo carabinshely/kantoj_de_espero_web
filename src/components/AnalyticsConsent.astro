@@ -100,6 +100,18 @@ const payload = JSON.stringify({
       window.gtag('js', new Date());
       window.gtag('config', config.measurementId, { page_path: window.location.pathname });
     };
+    const clearGaCookies = () => {
+      const domains = [window.location.hostname, `.${window.location.hostname}`];
+      const names = ['_ga', '_gid', '_gat'];
+      for (const cookie of document.cookie.split(';')) {
+        const name = cookie.split('=')[0]?.trim();
+        if (name?.startsWith('_ga')) names.push(name);
+      }
+      for (const name of new Set(names)) {
+        document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax`;
+        for (const domain of domains) document.cookie = `${name}=; Max-Age=0; path=/; domain=${domain}; SameSite=Lax`;
+      }
+    };
     const decline = () => {
       saveChoice(deniedValue);
       window.gtag('consent', 'update', {
@@ -108,6 +120,7 @@ const payload = JSON.stringify({
         ad_user_data: deniedValue,
         ad_personalization: deniedValue
       });
+      clearGaCookies();
       hideBanner();
       showStatus();
     };

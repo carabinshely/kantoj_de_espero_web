@@ -49,6 +49,15 @@ const consentText = read(consentComponent);
 for (const field of ['ad_storage', 'analytics_storage', 'ad_user_data', 'ad_personalization']) {
   if (!consentText.includes(field)) fail({ check: 'verify:analytics', problem: `Consent Mode v2 field ${field} is missing.`, cause: 'Basic Consent Mode v2 requires explicit default/update consent fields.', path: consentComponent, fix: `Add ${field} to consent default/update calls.` });
 }
+
+for (const file of sourceFiles) {
+  const text = read(file);
+  const hasGaLoader = text.includes('googletagmanager.com/gtag/js');
+  const hasGaConfig = text.includes("'config'") || text.includes('\"config\"') || text.includes('gtag(\"config\"') || text.includes("gtag('config'");
+  if ((hasGaLoader || hasGaConfig) && file !== consentComponent) fail({ check: 'verify:analytics', problem: `GA4 loader/config appears outside the consent component: ${file}`, cause: 'All GA4 loading and config must remain behind the Basic consent-first gate.', path: file, fix: 'Move GA4 loader/config calls into AnalyticsConsent.astro.' });
+}
+if (!consentText.includes('clearGaCookies')) fail({ check: 'verify:analytics', problem: 'Consent revocation does not include GA cookie cleanup.', cause: 'Revocation should stop future analytics and clear existing GA cookies best-effort.', path: consentComponent, fix: 'Call a cookie cleanup helper from the denied/revoke path.' });
+
 const defaultIndex = consentText.indexOf("'consent', 'default'");
 const loaderIndex = consentText.indexOf('googletagmanager.com/gtag/js');
 const configIndex = consentText.indexOf("'config'");

@@ -4,6 +4,19 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-07-06
+
+### Added
+- Added a default public social share preview image so shared pages render an intentional Kantoj de Espero card.
+
+### Changed
+- Pointed Open Graph and Twitter card metadata at the default share preview image across public pages.
+- Expanded SEO verification to assert share-preview metadata and image dimensions.
+
+### Fixed
+- Kept the share preview domain cue inside the poster frame after design review so social crops stay readable.
+
+
 ## [0.1.3] - 2026-07-05
 
 ### Added

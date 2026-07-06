@@ -8,6 +8,14 @@ export function siteUrl(path = '/') {
   return new URL(`${cleanBase}${cleanPath}`, `${origin}/`).toString();
 }
 
+export const DEFAULT_SHARE_IMAGE_PATH = '/share-preview.png';
+export const DEFAULT_SHARE_IMAGE_WIDTH = 1200;
+export const DEFAULT_SHARE_IMAGE_HEIGHT = 630;
+
+export function defaultShareImageUrl() {
+  return siteUrl(DEFAULT_SHARE_IMAGE_PATH);
+}
+
 export function languageAlternates(currentPath: string, otherPath: string) {
   return [
     { lang: currentPath.startsWith('/eo/') ? 'eo' : 'en', href: siteUrl(currentPath) },

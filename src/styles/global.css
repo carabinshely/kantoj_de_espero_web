@@ -31,6 +31,23 @@ main { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; }
   padding-block: clamp(2.75rem, 6vw, 5rem) clamp(2rem, 5vw, 4rem);
   display: grid;
   gap: 1.35rem;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: clamp(2rem, 8vw, 5rem) 0 auto auto;
+  width: min(36vw, 28rem);
+  aspect-ratio: 1;
+  background:
+    linear-gradient(135deg, transparent 18%, rgba(125, 211, 252, .16) 18% 20%, transparent 20% 34%, rgba(249, 168, 212, .14) 34% 36%, transparent 36%),
+    radial-gradient(circle at 70% 30%, rgba(125, 211, 252, .16), transparent 55%);
+  filter: blur(.2px);
+  opacity: .75;
+  pointer-events: none;
+  z-index: -1;
 }
 .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .16em; font-size: .8rem; font-weight: 700; }
 h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; margin: 0 0 .75rem; letter-spacing: -.035em; }

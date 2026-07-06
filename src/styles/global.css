@@ -57,6 +57,7 @@ p { margin: 0 0 1rem; }
 .lede { font-size: clamp(1.1rem, 2.5vw, 1.45rem); max-width: 62ch; color: var(--muted); }
 .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin: 1.5rem 0 3rem; }
 .card, .panel, .cta-band { background: color-mix(in srgb, var(--panel), transparent 5%); border: 1px solid var(--line); border-radius: 1.25rem; padding: 1.25rem; box-shadow: 0 18px 50px rgba(0,0,0,.18); }
+.panel + .panel { margin-top: 1rem; }
 .card { transition: transform 160ms ease-out, border-color 160ms ease-out, background-color 160ms ease-out; }
 .card:hover, .card:focus-within { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent), transparent 55%); }
 .card h3 a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }

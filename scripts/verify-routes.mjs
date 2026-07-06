@@ -17,6 +17,20 @@ function assertNotIncludes(route, forbidden, problem, fix) {
   if (html.includes(forbidden.toLowerCase())) fail({ check: 'verify:routes', problem, cause: `Stale or launch-gated copy is still rendered on ${route}.`, path: routePath(route), fix });
 }
 
+
+const HOMEPAGE_STALE_PUBLIC_COPY = [
+  { phrase: 'MVP catalog', source: 'src/pages/en/index.astro', route: '/en/' },
+  { phrase: 'MVP-katalog', source: 'src/pages/eo/index.astro', route: '/eo/' }
+];
+
+function checkHomepageStalePublicCopy() {
+  for (const { phrase, source, route } of HOMEPAGE_STALE_PUBLIC_COPY) {
+    const sourceText = readFileSync(source, 'utf8');
+    if (sourceText.toLowerCase().includes(phrase.toLowerCase())) fail({ check: 'verify:routes', problem: `Homepage source still contains stale public copy: ${phrase}`, cause: 'The homepage must be listener-facing instead of presenting the project as an MVP catalog.', path: source, fix: 'Replace the stale phrase while preserving the Start Here CTA.' });
+    assertNotIncludes(route, phrase, `Homepage rendered output still contains stale public copy: ${phrase}`, 'Replace the stale phrase in the localized homepage source and rerun npm run build.');
+  }
+}
+
 function checkInternalHrefs(route) {
   const page = readFileSync(routePath(route), 'utf8');
   const hrefs = [...page.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
@@ -72,4 +86,5 @@ for (const route of routes) {
   if (!html.includes('<main')) fail({ check: 'verify:routes', problem: `Route ${route} has no main landmark.`, cause: 'Base layout may not have rendered.', path: routePath(route), fix: 'Render routes through BaseLayout.' });
 }
 checkLaunchCopy();
+checkHomepageStalePublicCopy();
 pass('verify:routes', `${routes.length + catalog.songs.length * 2 + catalog.playlists.length * 2} expected routes generated plus custom 404; support omitted; approved public copy rendered`);

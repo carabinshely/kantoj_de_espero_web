@@ -35,7 +35,7 @@ const analyticsConfig = 'src/lib/analytics.ts';
 if (!existsSync(analyticsConfig)) fail({ check: 'verify:analytics', problem: 'Missing analytics config helper.', cause: 'Measurement ID and allowlists must have a single source of truth.', path: analyticsConfig, fix: 'Create src/lib/analytics.ts with the approved GA4 constants.' });
 const configText = read(analyticsConfig);
 if (!configText.includes(`GA4_MEASUREMENT_ID = '${MEASUREMENT_ID}'`)) fail({ check: 'verify:analytics', problem: `GA4 measurement ID is not ${MEASUREMENT_ID}.`, cause: 'The approved GA4 property ID drifted.', path: analyticsConfig, fix: `Set GA4_MEASUREMENT_ID to ${MEASUREMENT_ID}.` });
-const sourceIdFiles = sourceContaining(new RegExp(MEASUREMENT_ID, 'g'));
+const sourceIdFiles = sourceFiles.filter((file) => read(file).includes(MEASUREMENT_ID));
 if (sourceIdFiles.length !== 1 || sourceIdFiles[0] !== analyticsConfig) fail({ check: 'verify:analytics', problem: 'GA4 measurement ID is not source-defined exactly once.', cause: 'The ID must remain a single source of truth and be imported where needed.', path: sourceIdFiles.join(', ') || 'src/', fix: 'Keep the ID only in src/lib/analytics.ts and import that constant.' });
 
 for (const eventName of allowedEvents) if (!configText.includes(`'${eventName}'`)) fail({ check: 'verify:analytics', problem: `Allowed event ${eventName} missing from config.`, cause: 'Custom event allowlist drifted.', path: analyticsConfig, fix: 'Keep exactly listen_click and playlist_cta_click in ANALYTICS_EVENTS.' });

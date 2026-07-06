@@ -83,22 +83,26 @@ const payload = JSON.stringify({
     const showBanner = () => { if (banner) banner.hidden = false; };
 
     let ga4Loaded = false;
-    const loadGa4 = () => {
-      if (ga4Loaded || document.querySelector('script[data-ga4-loader]')) return;
-      ga4Loaded = true;
+    const grantConsent = () => {
       window.gtag('consent', 'update', {
         analytics_storage: grantedValue,
         ad_storage: deniedValue,
         ad_user_data: deniedValue,
         ad_personalization: deniedValue
       });
-      const script = document.createElement('script');
-      script.async = true;
-      script.dataset.ga4Loader = 'true';
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(config.measurementId)}`;
-      document.head.appendChild(script);
-      window.gtag('js', new Date());
-      window.gtag('config', config.measurementId, { page_path: window.location.pathname });
+    };
+    const loadGa4 = (sendPageView = true) => {
+      grantConsent();
+      if (!ga4Loaded && !document.querySelector('script[data-ga4-loader]')) {
+        ga4Loaded = true;
+        const script = document.createElement('script');
+        script.async = true;
+        script.dataset.ga4Loader = 'true';
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(config.measurementId)}`;
+        document.head.appendChild(script);
+        window.gtag('js', new Date());
+      }
+      if (sendPageView) window.gtag('config', config.measurementId, { page_path: window.location.pathname });
     };
     const clearGaCookies = () => {
       const domains = [window.location.hostname, `.${window.location.hostname}`];
@@ -144,7 +148,7 @@ const payload = JSON.stringify({
     };
     const track = (eventName, rawParams) => {
       if (!allowedEvents.has(eventName) || readChoice() !== grantedValue) return;
-      loadGa4();
+      loadGa4(false);
       window.gtag('event', eventName, cleanParams(rawParams));
     };
 

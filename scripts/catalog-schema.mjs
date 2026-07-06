@@ -18,6 +18,31 @@ export const FORBIDDEN_KEYS = [
   'genres_seed', 'moods_seed', 'topics_seed', 'editorial_status', 'editorial_notes'
 ];
 
+
+export const PUBLIC_GENRES = [
+  'ballad', 'classic pop-rock', 'folk-pop', 'melodic pop', 'pop-rock',
+  'psychedelic pop', 'rock', 'rock and roll', 'soft rock', 'soul'
+];
+
+export const PUBLIC_MOODS = [
+  'adventurous', 'communal', 'cosmic', 'dreamy', 'energetic', 'free',
+  'gentle', 'hopeful', 'introspective', 'lyrical', 'melancholic',
+  'nostalgic', 'optimistic', 'peaceful', 'quiet', 'quirky', 'reflective',
+  'resilient', 'restless', 'romantic', 'searching', 'soothing',
+  'story-driven', 'tender', 'upbeat', 'uplifting', 'urban', 'urgent', 'warm'
+];
+
+export const PUBLIC_TOPICS = [
+  'acceptance', 'adventure', 'alienation', 'city', 'coffeehouse',
+  'communication', 'community', 'confusion', 'connection', 'courage',
+  'dreams', 'escape', 'freedom', 'friendship', 'growth', 'healing',
+  'heartbreak', 'hope', 'identity', 'journey', 'light', 'loneliness',
+  'longing', 'loss', 'lost record', 'lost song', 'love', 'memory', 'music',
+  'new beginning', 'night', 'peace', 'plea', 'possibility', 'regret',
+  'renewal', 'road', 'search', 'self-doubt', 'silence', 'stars', 'story',
+  'uncertainty', 'unity', 'words'
+];
+
 export const STREAMING_PLATFORMS = ['spotify', 'youtube_music', 'apple_music', 'deezer', 'amazon_music', 'hyperfollow'];
 
 

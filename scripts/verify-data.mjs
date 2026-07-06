@@ -13,7 +13,10 @@ const allowedPlaylist = new Set(PLAYLIST_KEYS);
 
 function checkControlledValues(record, field, allowedValues, kind, id) {
   const values = record[field];
-  if (!Array.isArray(values)) fail({ check: 'verify:data', problem: `${kind} ${id} has non-array ${field}.`, cause: 'Public taxonomy fields must be arrays of controlled public-safe values.', path: `src/data/public-catalog.json:${id}.${field}`, fix: `Export ${field} as an array using the public taxonomy contract in scripts/catalog-schema.mjs.` });
+  if (!Array.isArray(values)) {
+    fail({ check: 'verify:data', problem: `${kind} ${id} has non-array ${field}.`, cause: 'Public taxonomy fields must be arrays of controlled public-safe values.', path: `src/data/public-catalog.json:${id}.${field}`, fix: `Export ${field} as an array using the public taxonomy contract in scripts/catalog-schema.mjs.` });
+    return;
+  }
   const allowed = new Set(allowedValues);
   for (const value of values) {
     if (!allowed.has(value)) fail({ check: 'verify:data', problem: `${kind} ${id} uses uncontrolled ${field} value: ${value}`, cause: 'Public taxonomy drifted outside the committed standalone website contract.', path: `src/data/public-catalog.json:${id}.${field}`, fix: `Choose an allowed value from scripts/catalog-schema.mjs or intentionally update the public taxonomy contract.` });

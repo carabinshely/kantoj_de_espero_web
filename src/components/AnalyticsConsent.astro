@@ -1,0 +1,163 @@
+---
+import { pageHref } from '@/lib/seo';
+import { ANALYTICS_CONSENT_STORAGE_KEY, ANALYTICS_EVENTS, ANALYTICS_PARAMS, GA4_MEASUREMENT_ID } from '@/lib/analytics';
+import type { Lang } from '@/lib/types';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const copy = lang === 'eo'
+  ? {
+      bannerTitle: 'Privateca elekto',
+      bannerText: 'Ni uzas nur konsentitajn GA4-analitikojn por kompreni aŭskultajn kaj ludlistajn klakojn. La retejo funkcias sen analitiko.',
+      accept: 'Akcepti analitikon',
+      decline: 'Rifuzi',
+      manage: 'Administri privatecon',
+      revoke: 'Forigi konsenton',
+      saved: 'Analitika prefero konservita.',
+      privacyHref: '/eo/privateco/'
+    }
+  : {
+      bannerTitle: 'Privacy choice',
+      bannerText: 'We use consent-only GA4 analytics to understand listen and playlist clicks. The site works without analytics.',
+      accept: 'Accept analytics',
+      decline: 'Decline',
+      manage: 'Manage privacy',
+      revoke: 'Revoke consent',
+      saved: 'Analytics preference saved.',
+      privacyHref: '/en/privacy/'
+    };
+const payload = JSON.stringify({
+  measurementId: GA4_MEASUREMENT_ID,
+  storageKey: ANALYTICS_CONSENT_STORAGE_KEY,
+  allowedEvents: ANALYTICS_EVENTS,
+  allowedParams: ANALYTICS_PARAMS,
+  copy
+}).replace(/</g, '\\u003c');
+---
+<div class="consent-banner" data-consent-banner hidden>
+  <div>
+    <p class="consent-title">{copy.bannerTitle}</p>
+    <p class="consent-text">{copy.bannerText} <a href={pageHref(copy.privacyHref)}>{copy.manage}</a>.</p>
+  </div>
+  <div class="consent-actions">
+    <button class="button accent" type="button" data-consent-accept>{copy.accept}</button>
+    <button class="button" type="button" data-consent-decline>{copy.decline}</button>
+  </div>
+</div>
+<div class="consent-status" data-consent-status hidden role="status" aria-live="polite"></div>
+<script is:inline define:vars={{ payload }}>
+  (() => {
+    const config = JSON.parse(payload);
+    const allowedEvents = new Set(config.allowedEvents);
+    const allowedParams = new Set(config.allowedParams);
+    const grantedValue = 'granted';
+    const deniedValue = 'denied';
+    const banner = document.querySelector('[data-consent-banner]');
+    const status = document.querySelector('[data-consent-status]');
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ window.dataLayer.push(arguments); }
+    window.gtag = window.gtag || gtag;
+    window.gtag('consent', 'default', {
+      ad_storage: deniedValue,
+      analytics_storage: deniedValue,
+      ad_user_data: deniedValue,
+      ad_personalization: deniedValue
+    });
+
+    const readChoice = () => {
+      try { return window.localStorage.getItem(config.storageKey); }
+      catch { return null; }
+    };
+    const saveChoice = (choice) => {
+      try { window.localStorage.setItem(config.storageKey, choice); }
+      catch { /* storage may be unavailable; keep this page usable */ }
+    };
+    const showStatus = () => {
+      if (!status) return;
+      status.textContent = config.copy.saved;
+      status.hidden = false;
+      window.setTimeout(() => { status.hidden = true; }, 3500);
+    };
+    const hideBanner = () => { if (banner) banner.hidden = true; };
+    const showBanner = () => { if (banner) banner.hidden = false; };
+
+    let ga4Loaded = false;
+    const loadGa4 = () => {
+      if (ga4Loaded || document.querySelector('script[data-ga4-loader]')) return;
+      ga4Loaded = true;
+      window.gtag('consent', 'update', {
+        analytics_storage: grantedValue,
+        ad_storage: deniedValue,
+        ad_user_data: deniedValue,
+        ad_personalization: deniedValue
+      });
+      const script = document.createElement('script');
+      script.async = true;
+      script.dataset.ga4Loader = 'true';
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(config.measurementId)}`;
+      document.head.appendChild(script);
+      window.gtag('js', new Date());
+      window.gtag('config', config.measurementId, { page_path: window.location.pathname });
+    };
+    const decline = () => {
+      saveChoice(deniedValue);
+      window.gtag('consent', 'update', {
+        ad_storage: deniedValue,
+        analytics_storage: deniedValue,
+        ad_user_data: deniedValue,
+        ad_personalization: deniedValue
+      });
+      hideBanner();
+      showStatus();
+    };
+    const accept = () => {
+      saveChoice(grantedValue);
+      hideBanner();
+      loadGa4();
+      showStatus();
+    };
+    const revoke = () => {
+      decline();
+      showBanner();
+    };
+    const cleanParams = (raw) => {
+      const params = {};
+      for (const [key, value] of Object.entries(raw)) {
+        if (allowedParams.has(key) && typeof value === 'string' && value.length > 0) params[key] = value;
+      }
+      params.page_path = window.location.pathname;
+      return params;
+    };
+    const track = (eventName, rawParams) => {
+      if (!allowedEvents.has(eventName) || readChoice() !== grantedValue) return;
+      loadGa4();
+      window.gtag('event', eventName, cleanParams(rawParams));
+    };
+
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target.closest('[data-analytics-event]') : null;
+      if (!target) return;
+      track(target.getAttribute('data-analytics-event'), {
+        platform: target.getAttribute('data-analytics-platform') || '',
+        entity_type: target.getAttribute('data-analytics-entity-type') || '',
+        entity_id: target.getAttribute('data-analytics-entity-id') || '',
+        lang: target.getAttribute('data-analytics-lang') || document.documentElement.lang || ''
+      });
+    });
+    document.addEventListener('click', (event) => {
+      const control = event.target instanceof Element ? event.target.closest('[data-consent-manage],[data-consent-revoke]') : null;
+      if (!control) return;
+      event.preventDefault();
+      if (control.hasAttribute('data-consent-revoke')) revoke();
+      else showBanner();
+    });
+    banner?.querySelector('[data-consent-accept]')?.addEventListener('click', accept);
+    banner?.querySelector('[data-consent-decline]')?.addEventListener('click', decline);
+
+    const choice = readChoice();
+    if (choice === grantedValue) loadGa4();
+    else if (choice !== deniedValue) showBanner();
+    window.kantojAnalytics = { accept, decline, revoke, track };
+  })();
+</script>

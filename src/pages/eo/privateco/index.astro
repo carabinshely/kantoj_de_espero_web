@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+---
+<BaseLayout title="Privateco kaj Analitiko" description="Privatecaj informoj kaj konsentaj regiloj por analitiko de Kantoj de Espero." path="/eo/privateco/" alternatePath="/en/privacy/" lang="eo">
+  <section class="hero" id="analytics-settings">
+    <p class="eyebrow">Privateco</p>
+    <h1>Analitiko nur post konsento.</h1>
+    <p class="lede">Kantoj de Espero funkcias sen analitiko. Se vi akceptas, ni uzas Google Analytics 4 nur por kompreni publikajn paĝvidojn kaj ĉu aŭskultantoj klakas aŭskultajn aŭ Komencu ĉi tie-ludlistajn ligilojn.</p>
+    <div class="actions">
+      <button class="button accent" type="button" data-consent-manage>Administri analitikajn agordojn</button>
+      <button class="button" type="button" data-consent-revoke>Forigi analitikan konsenton</button>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>Kion oni mezuras</h2>
+    <p>Analitiko estas malŝaltita defaŭlte. Post konsento, GA4 povas ricevi normajn paĝvidojn kaj du proprajn eventojn: listen_click kaj playlist_cta_click.</p>
+    <p>La solaj propraj eventaj kampoj estas platform, entity_type, entity_id, lang, kaj page_path. Ili priskribas publikajn katalogajn erojn kaj ne inkluzivas privatajn fontajn metadatumojn.</p>
+  </section>
+  <section class="panel">
+    <h2>Kio ne estas uzata</h2>
+    <p>Ĉi tiu retejo ne uzas Google Ads, Google Tag Manager, remarketing, audiences, konsent-administran vendiston, aŭ reklaman personigon.</p>
+    <p>Se JavaScript aŭ retumila konservado ne haveblas, la retejo restas uzebla kaj analitiko ne aktiviĝas.</p>
+  </section>
+  <LanguageSwitch href="/en/privacy/" label="Read privacy details in English" />
+</BaseLayout>

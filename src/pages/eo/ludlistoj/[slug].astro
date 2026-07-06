@@ -14,7 +14,7 @@ const copy = localizedPlaylist(playlist, 'eo');
 const playlistSongs = songsForPlaylist(playlist);
 ---
 <BaseLayout title={copy.seoTitle} description={copy.metaDescription} path={playlistPath(playlist, 'eo')} alternatePath={playlistPath(playlist, 'en')} lang="eo" jsonLd={playlistJsonLd(copy.title, copy.metaDescription, playlistPath(playlist, 'eo'), playlistSongs.map((song) => songPath(song, 'eo')))}>
-  <section class="hero"><p class="eyebrow">Ludlisto</p><h1>{copy.title}</h1><p class="lede">{copy.intro}</p><ListenLinks links={playlist.streaming_links} label={`Aŭskulti ${copy.title}`} /></section>
+  <section class="hero"><p class="eyebrow">Ludlisto</p><h1>{copy.title}</h1><p class="lede">{copy.intro}</p><ListenLinks links={playlist.streaming_links} label={`Aŭskulti ${copy.title}`} entityType="playlist" entityId={playlist.id} lang="eo" /></section>
   <LanguageSwitch href={playlistPath(playlist, 'en')} label="Read this playlist in English" />
   <section><h2>Kantoj laŭ ordo</h2><div class="grid">{playlistSongs.map((song) => <SongCard song={song} lang="eo" />)}</div></section>
 </BaseLayout>

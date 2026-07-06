@@ -59,3 +59,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+        env:
+          # actions/deploy-pages@v5.0.0 is the latest official Pages deploy action,
+          # but it currently emits Node runtime deprecation noise under Node 24.
+          # Keep deploy logs release-clean while staying on the supported action.
+          NODE_OPTIONS: --no-deprecation

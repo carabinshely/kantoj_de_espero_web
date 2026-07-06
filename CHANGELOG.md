@@ -4,6 +4,16 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-07-06
+
+### Added
+- Added a controlled public taxonomy contract so website verification catches genre, mood, and topic drift before publication.
+
+### Changed
+- Reframed the English and Esperanto homepages as a listener-facing first collection instead of an MVP catalog.
+- Expanded route verification to reject stale MVP homepage copy in source and rendered output.
+- Added a subtle homepage visual anchor and clearer stacked-panel separation using the documented site palette.
+
 ## [0.1.4] - 2026-07-06
 
 ### Added

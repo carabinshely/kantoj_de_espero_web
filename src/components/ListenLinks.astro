@@ -1,12 +1,31 @@
 ---
 import { platformLabel, realLinks } from '@/lib/site';
-import type { StreamingLinks } from '@/lib/types';
-interface Props { links: StreamingLinks; label?: string }
-const { links, label = 'Listen' } = Astro.props;
+import type { Lang, StreamingLinks } from '@/lib/types';
+interface Props {
+  links: StreamingLinks;
+  label?: string;
+  entityType: 'song' | 'playlist';
+  entityId: string;
+  lang: Lang;
+}
+const { links, label = 'Listen', entityType, entityId, lang } = Astro.props;
 const entries = realLinks(links);
 ---
 {entries.length > 0 && (
   <div class="listen-links" aria-label={label}>
-    {entries.map(([platform, url]) => <a class="button" href={url} rel="noopener noreferrer">{platformLabel(platform)}</a>)}
+    {entries.map(([platform, url]) => (
+      <a
+        class="button"
+        href={url}
+        rel="noopener noreferrer"
+        data-analytics-event="listen_click"
+        data-analytics-platform={platform}
+        data-analytics-entity-type={entityType}
+        data-analytics-entity-id={entityId}
+        data-analytics-lang={lang}
+      >
+        {platformLabel(platform)}
+      </a>
+    ))}
   </div>
 )}

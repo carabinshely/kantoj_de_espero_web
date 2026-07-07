@@ -1,6 +1,7 @@
 ---
 import { pageHref, siteUrl, languageAlternates, defaultShareImageUrl, DEFAULT_SHARE_IMAGE_WIDTH, DEFAULT_SHARE_IMAGE_HEIGHT } from '@/lib/seo';
 import { languages, siteFacts } from '@/lib/site';
+import AnalyticsConsent from '@/components/AnalyticsConsent.astro';
 import '@/styles/global.css';
 import type { Lang } from '@/lib/types';
 
@@ -20,18 +21,27 @@ const shareImageUrl = defaultShareImageUrl();
 const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${siteFacts.artistName}`;
 const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
 const primaryNav = lang === 'eo'
-  ? { aria: 'Ĉefa navigado', songs: 'Kantoj', playlists: 'Ludlistoj', licensing: 'Licencado', about: 'Pri ni', skip: 'Salti al enhavo' }
-  : { aria: 'Primary navigation', songs: 'Songs', playlists: 'Playlists', licensing: 'Licensing', about: 'About', skip: 'Skip to content' };
+  ? { aria: 'Ĉefa navigado', songs: 'Kantoj', playlists: 'Ludlistoj', licensing: 'Licencado', about: 'Pri ni', privacy: 'Privateco', settings: 'Analitikaj agordoj', skip: 'Salti al enhavo' }
+  : { aria: 'Primary navigation', songs: 'Songs', playlists: 'Playlists', licensing: 'Licensing', about: 'About', privacy: 'Privacy', settings: 'Analytics settings', skip: 'Skip to content' };
 const langHome = languages[lang].home;
 const otherLang: Lang = lang === 'en' ? 'eo' : 'en';
 const otherLangHome = languages[otherLang].home;
-const navItems = [
-  { href: langHome, label: languages[lang].label, active: path === langHome },
-  { href: otherLangHome, label: languages[otherLang].label, active: false },
-  { href: languages[lang].songs, label: primaryNav.songs, active: path.startsWith(languages[lang].songs) },
-  { href: languages[lang].playlists, label: primaryNav.playlists, active: path.startsWith(languages[lang].playlists) },
-  { href: languages[lang].licensing, label: primaryNav.licensing, active: path.startsWith(languages[lang].licensing) },
-];
+const privacyHref = lang === 'eo' ? '/eo/privateco/' : '/en/privacy/';
+const settingsHref = `${privacyHref}#analytics-settings`;
+const isRootPath = path === '/';
+const brandHref = isRootPath ? '/' : langHome;
+const navItems = isRootPath
+  ? [
+      { href: languages.en.home, label: languages.en.label, active: false },
+      { href: languages.eo.home, label: languages.eo.label, active: false },
+    ]
+  : [
+      { href: langHome, label: languages[lang].label, active: path === langHome },
+      { href: otherLangHome, label: languages[otherLang].label, active: false },
+      { href: languages[lang].songs, label: primaryNav.songs, active: path.startsWith(languages[lang].songs) },
+      { href: languages[lang].playlists, label: primaryNav.playlists, active: path.startsWith(languages[lang].playlists) },
+      { href: languages[lang].licensing, label: primaryNav.licensing, active: path.startsWith(languages[lang].licensing) },
+    ];
 ---
 <!doctype html>
 <html lang={lang}>
@@ -57,7 +67,7 @@ const navItems = [
   <body>
     <a class="skip-link" href="#main">{primaryNav.skip}</a>
     <header class="site-header">
-      <a class="brand" href={pageHref("/")}>{siteFacts.artistName}</a>
+      <a class="brand" href={pageHref(brandHref)}>{siteFacts.artistName}</a>
       <nav aria-label={primaryNav.aria}>
         {navItems.map((item) => <a href={pageHref(item.href)} aria-current={item.active ? 'page' : undefined}>{item.label}</a>)}
       </nav>
@@ -67,7 +77,8 @@ const navItems = [
     </main>
     <footer class="site-footer">
       <p>{siteFacts.artistName} — {siteFacts.tagline}</p>
-      <p><a href={pageHref(languages[lang].about)}>{primaryNav.about}</a> · <a href={pageHref(languages[lang].licensing)}>{primaryNav.licensing}</a></p>
+      <p><a href={pageHref(languages[lang].about)}>{primaryNav.about}</a> · <a href={pageHref(languages[lang].licensing)}>{primaryNav.licensing}</a> · <a href={pageHref(privacyHref)}>{primaryNav.privacy}</a> · <a href={pageHref(settingsHref)} data-consent-manage>{primaryNav.settings}</a></p>
     </footer>
+    <AnalyticsConsent lang={lang} />
   </body>
 </html>

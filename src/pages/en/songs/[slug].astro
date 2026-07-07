@@ -20,7 +20,7 @@ const linkedPlaylists = playlistsForSong(song);
       <p class="eyebrow">Song</p>
       <h1>{copy.title}</h1>
       <p class="lede">{copy.hook}</p>
-      <ListenLinks links={song.streaming_links} label={`Listen to ${copy.title}`} />
+      <ListenLinks links={song.streaming_links} label={`Listen to ${copy.title}`} entityType="song" entityId={song.id} lang="en" />
       <LanguageSwitch href={songPath(song, 'eo')} label="Legu ĉi tiun kanton Esperante" />
       <h2>Lyrics</h2>
       <pre class="lyrics">{song.lyrics_eo}</pre>

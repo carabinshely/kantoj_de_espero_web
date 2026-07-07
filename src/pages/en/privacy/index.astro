@@ -1,0 +1,27 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+---
+<BaseLayout title="Privacy and Analytics" description="Privacy information and consent controls for Kantoj de Espero analytics." path="/en/privacy/" alternatePath="/eo/privateco/" lang="en">
+  <section class="hero" id="analytics-settings">
+    <p class="eyebrow">Privacy</p>
+    <h1>Consent-first analytics.</h1>
+    <p class="lede">Kantoj de Espero works without analytics. If you accept, we use Google Analytics 4 only to understand public page views and whether listeners click listening or Start Here playlist links.</p>
+    <div class="actions">
+      <button class="button accent" type="button" data-consent-manage>Manage analytics settings</button>
+      <button class="button" type="button" data-consent-revoke>Revoke analytics consent</button>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>What is measured</h2>
+    <p>Analytics is off by default. After consent, GA4 may receive standard page views and two custom events: listen_click and playlist_cta_click.</p>
+    <p>The only custom event fields are platform, entity_type, entity_id, lang, and page_path. These describe public catalog items and do not include private source metadata.</p>
+  </section>
+  <section class="panel">
+    <h2>What is not used</h2>
+    <p>This site does not use Google Ads, Google Tag Manager, remarketing, audiences, a consent-management vendor, or advertising personalization.</p>
+    <p>If JavaScript or browser storage is unavailable, the site remains usable and analytics is not enabled.</p>
+    <p>Revoking consent updates Consent Mode to denied, stops future analytics events, and attempts to clear GA cookies from this domain. Outbound listen-click measurement is best-effort so links remain fast and usable.</p>
+  </section>
+  <LanguageSwitch href="/eo/privateco/" label="Legu privatece Esperante" />
+</BaseLayout>

@@ -7,13 +7,14 @@ import LanguageSwitch from '@/components/LanguageSwitch.astro';
 import { songs, playlists } from '@/lib/site';
 import { musicGroupJsonLd } from '@/lib/seo';
 const featured = songs.filter((song) => song.featured).slice(0, 6);
+const startHerePlaylist = playlists.find((playlist) => playlist.id === 'start-here-modern-esperanto-pop-rock');
 ---
 <BaseLayout title="Modern Esperanto Pop-Rock" description="Discover Kantoj de Espero songs, Esperanto lyrics, and themed playlists." path="/en/" alternatePath="/eo/" lang="en" jsonLd={musicGroupJsonLd('/en/')}>
   <section class="hero">
     <p class="eyebrow">Start here</p>
     <h1>Modern Esperanto songs with lyrics and playlists.</h1>
     <p class="lede">Explore a first collection of modern Esperanto songs from Kantoj de Espero, organized for listeners, learners, clubs, creators, and music supervisors.</p>
-    <div class="actions"><a class="button accent" href={pageHref("/en/playlists/start-here-modern-esperanto-pop-rock/")}>Start with the playlist</a><a class="button" href={pageHref("/en/songs/")}>Browse songs</a></div>
+    <div class="actions"><a class="button accent" href={pageHref("/en/playlists/start-here-modern-esperanto-pop-rock/")} data-analytics-event="playlist_cta_click" data-analytics-entity-type="playlist" data-analytics-entity-id={startHerePlaylist?.id ?? 'start-here-modern-esperanto-pop-rock'} data-analytics-lang="en">Start with the playlist</a><a class="button" href={pageHref("/en/songs/")}>Browse songs</a></div>
   </section>
   <LanguageSwitch href="/eo/" label="Legu Esperante" />
   <section><h2>Featured songs</h2><div class="grid">{featured.map((song) => <SongCard song={song} lang="en" />)}</div></section>

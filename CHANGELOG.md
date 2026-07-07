@@ -4,6 +4,16 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-07-07
+
+### Added
+- Added consent-first GA4 measurement with Measurement ID `G-K6Q30HHBH4`, Consent Mode v2 default-denied behavior, bilingual privacy/settings pages, and analytics consent controls.
+- Added allowlisted listen-link and Start Here playlist CTA event instrumentation after analytics consent.
+- Added analytics verification to the website verification chain so release checks reject ID drift, unsafe loader ordering, unapproved events/params, and missing privacy controls.
+
+### Fixed
+- Preserved consented outbound listen-click measurement before navigation without delaying non-consented visitor links.
+
 ## [0.1.5] - 2026-07-06
 
 ### Added

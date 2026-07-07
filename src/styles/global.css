@@ -100,15 +100,12 @@ p { margin: 0 0 1rem; }
   .button:hover, .button:focus-visible, .card:hover, .card:focus-within { transform: none; }
 }
 .consent-banner {
-  position: fixed;
-  inset: auto 1rem 1rem 1rem;
-  z-index: 20;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
   width: min(960px, calc(100% - 2rem));
-  margin: 0 auto;
+  margin: 2rem auto 1rem;
   padding: 1rem;
   background: color-mix(in srgb, var(--panel-2), #000 12%);
   border: 1px solid var(--line);

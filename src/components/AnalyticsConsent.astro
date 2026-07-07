@@ -146,21 +146,40 @@ const payload = JSON.stringify({
       params.page_path = window.location.pathname;
       return params;
     };
-    const track = (eventName, rawParams) => {
-      if (!allowedEvents.has(eventName) || readChoice() !== grantedValue) return;
+    const track = (eventName, rawParams, options = {}) => {
+      if (!allowedEvents.has(eventName) || readChoice() !== grantedValue) return false;
       loadGa4(false);
-      window.gtag('event', eventName, cleanParams(rawParams));
+      window.gtag('event', eventName, { ...cleanParams(rawParams), ...options });
+      return true;
     };
 
     document.addEventListener('click', (event) => {
       const target = event.target instanceof Element ? event.target.closest('[data-analytics-event]') : null;
       if (!target) return;
-      track(target.getAttribute('data-analytics-event'), {
+      const params = {
         platform: target.getAttribute('data-analytics-platform') || '',
         entity_type: target.getAttribute('data-analytics-entity-type') || '',
         entity_id: target.getAttribute('data-analytics-entity-id') || '',
         lang: target.getAttribute('data-analytics-lang') || document.documentElement.lang || ''
+      };
+      const link = target instanceof HTMLAnchorElement ? target : target.closest('a[href]');
+      const opensElsewhere = event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link?.target && link.target !== '_self';
+      if (!link || opensElsewhere) {
+        track(target.getAttribute('data-analytics-event'), params);
+        return;
+      }
+      let continued = false;
+      const continueNavigation = () => {
+        if (continued) return;
+        continued = true;
+        window.location.href = link.href;
+      };
+      const tracked = track(target.getAttribute('data-analytics-event'), params, {
+        transport_type: 'beacon'
       });
+      if (!tracked) return;
+      event.preventDefault();
+      window.setTimeout(continueNavigation, 350);
     });
     document.addEventListener('click', (event) => {
       const control = event.target instanceof Element ? event.target.closest('[data-consent-manage],[data-consent-revoke]') : null;

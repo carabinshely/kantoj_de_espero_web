@@ -49,6 +49,15 @@ jobs:
       - name: Verify public build
         run: npm run verify
 
+      - name: Verify analytics release approval
+        env:
+          ANALYTICS_LEGAL_APPROVED: ${{ vars.ANALYTICS_LEGAL_APPROVED }}
+        run: |
+          if [ "$ANALYTICS_LEGAL_APPROVED" != "true" ]; then
+            echo "::error::Set repository variable ANALYTICS_LEGAL_APPROVED=true after owner/legal privacy-copy approval before deploying analytics."
+            exit 1
+          fi
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

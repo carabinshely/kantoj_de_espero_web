@@ -1,7 +1,7 @@
 import { cp, mkdtemp, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import {
   PreviewArgError,
   assertPortAvailable,
@@ -16,16 +16,6 @@ import {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultSourceDir = resolve(dirname(scriptPath), '..');
-
-function run(command, args, { cwd }) {
-  console.log(`[preview:tmp] ${command} ${args.join(' ')}`);
-  const result = spawnSync(command, args, { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
-  if (result.status !== 0) {
-    const error = new Error(`${command} ${args.join(' ')} failed with status ${result.status ?? 1}`);
-    error.exitCode = result.signal ? exitCodeForSignal(result.signal) : (result.status ?? 1);
-    throw error;
-  }
-}
 
 async function copyToMirror(sourceDir, targetDir) {
   await cp(sourceDir, targetDir, {
@@ -100,9 +90,33 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     process.once('SIGINT', signalHandlers.onSigint);
     process.once('SIGTERM', signalHandlers.onSigterm);
 
+    async function runCommand(command, args) {
+      console.log(`[preview:tmp] ${command} ${args.join(' ')}`);
+      await new Promise((resolve, reject) => {
+        const commandChild = spawn(command, args, {
+          cwd: targetDir,
+          stdio: 'inherit',
+          shell: process.platform === 'win32',
+          detached: process.platform !== 'win32'
+        });
+        child = commandChild;
+        commandChild.once('error', reject);
+        commandChild.once('exit', (status, signal) => {
+          if (child === commandChild) child = undefined;
+          if (signal || status !== 0) {
+            const error = new Error(`${command} ${args.join(' ')} failed with ${signal ? `signal ${signal}` : `status ${status ?? 1}`}`);
+            error.exitCode = signal ? exitCodeForSignal(signal) : (status ?? 1);
+            reject(error);
+            return;
+          }
+          resolve();
+        });
+      });
+    }
+
     await copyToMirror(sourceDir, targetDir);
-    run('npm', ['ci'], { cwd: targetDir });
-    run('npm', ['run', 'build'], { cwd: targetDir });
+    await runCommand('npm', ['ci']);
+    await runCommand('npm', ['run', 'build']);
 
     if (stoppingSignal) return finish(exitCodeForSignal(stoppingSignal));
 

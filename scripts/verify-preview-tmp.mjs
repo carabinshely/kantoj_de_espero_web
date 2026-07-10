@@ -41,7 +41,7 @@ function assertThrows(fn, expected) {
   assert(false, `Expected invalid port failure for ${expected}.`);
 }
 
-async function makeFixture({ buildFails = false, installFails = false, buildDelayMs = 0 } = {}) {
+async function makeFixture({ buildFails = false, installFails = false, installDelayMs = 0, buildDelayMs = 0 } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'preview-tmp-fixture-'));
   cleanup.push(() => rm(dir, { recursive: true, force: true }));
   const packageJson = {
@@ -54,6 +54,7 @@ async function makeFixture({ buildFails = false, installFails = false, buildDela
       preview: 'node preview.mjs'
     }
   };
+  if (installDelayMs > 0) packageJson.scripts.preinstall = 'node install.mjs';
   if (installFails) packageJson.dependencies = { 'fixture-missing-lock-entry': '1.0.0' };
   await writeFile(join(dir, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`);
   await writeFile(join(dir, 'package-lock.json'), `${JSON.stringify({ lockfileVersion: 3, requires: true, packages: { '': packageJson } }, null, 2)}\n`);
@@ -63,6 +64,7 @@ async function makeFixture({ buildFails = false, installFails = false, buildDela
       ? `console.log('fixture build started'); setTimeout(() => console.log('fixture build ok'), ${buildDelayMs});\n`
       : "console.log('fixture build ok');\n";
   await writeFile(join(dir, 'build.mjs'), buildScript);
+  if (installDelayMs > 0) await writeFile(join(dir, 'install.mjs'), `console.log('fixture install started'); setTimeout(() => console.log('fixture install ok'), ${installDelayMs});\n`);
   await writeFile(join(dir, 'preview.mjs'), `
 import { createServer } from 'node:http';
 const args = process.argv.slice(2);
@@ -211,16 +213,27 @@ try {
   assert(installFailResult.code !== 0, 'npm ci failures must preserve a nonzero failing status.');
   assert(!installFailResult.stdout.includes('[preview:tmp] ready') && !installFailResult.stderr.includes('[preview:tmp] ready'), 'npm ci failures must suppress ready URLs.');
 
-  const signalFixture = await makeFixture({ buildDelayMs: 5_000 });
   const signalPortServer = await reservePort(0);
   const signalPort = signalPortServer.address().port;
   await new Promise((resolve) => signalPortServer.close(resolve));
+
+  const installSignalFixture = await makeFixture({ installDelayMs: 5_000 });
+  const installSignalRun = runPreview(installSignalFixture, ['--port', String(signalPort)]);
+  const installMirrorOutput = await waitForOutput(installSignalRun, /\[preview:tmp\] mirror (.+)/);
+  const installMirrorPath = installMirrorOutput[1].trim();
+  await waitForOutput(installSignalRun, /fixture install started/);
+  installSignalRun.child.kill('SIGTERM');
+  const installSignalResult = await installSignalRun.exit;
+  assert(installSignalResult.code === 143 || installSignalResult.signal === 'SIGTERM', `SIGTERM during install must preserve the signal exit code (got ${JSON.stringify(installSignalResult)}).`);
+  assert(!installSignalRun.stdout.includes('npm run preview'), 'SIGTERM during install must prevent the preview child from starting.');
+  assert(!existsSync(installMirrorPath), 'SIGTERM during install must remove the temporary mirror.');
+
+  const signalFixture = await makeFixture({ buildDelayMs: 5_000 });
   const signalRun = runPreview(signalFixture, ['--port', String(signalPort)]);
   const mirrorOutput = await waitForOutput(signalRun, /\[preview:tmp\] mirror (.+)/);
   const signalMirrorPath = mirrorOutput[1].trim();
   await waitForOutput(signalRun, /fixture build started/);
-  if (process.platform !== 'win32' && signalRun.child.pid) process.kill(-signalRun.child.pid, 'SIGTERM');
-  else signalRun.child.kill('SIGTERM');
+  signalRun.child.kill('SIGTERM');
   const signalBuildResult = await signalRun.exit;
   assert(signalBuildResult.code === 143 || signalBuildResult.signal === 'SIGTERM', `SIGTERM during build must preserve the signal exit code (got ${JSON.stringify(signalBuildResult)}).`);
   assert(!signalRun.stdout.includes('npm run preview'), `SIGTERM during build must prevent the preview child from starting (stdout: ${signalRun.stdout}).`);

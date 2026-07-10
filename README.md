@@ -1,6 +1,6 @@
 # Kantoj de Espero Web
 
-Astro static website for the public Kantoj de Espero MVP. This `web/` directory is a separate public website repo; keep private planning/source material in the outer repo.
+Astro static website for the public Kantoj de Espero MVP. This `web/` directory is a separate public website Git repository nested inside the private outer repository. It has its own `.git`, branch, remote, commits, and pull requests; keep private planning/source material in the outer repo.
 
 ## Maintainer quickstart
 

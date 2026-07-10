@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 
 export const DEFAULT_HOST = '127.0.0.1';
 export const DEFAULT_PORT = 4329;
+export const MAX_PORT = 65535;
 export const MIRROR_PREFIX = 'kantoj-de-espero-preview-';
 export const EXCLUDED_PARTS = new Set(['.git', '.astro', 'dist', 'node_modules']);
 
@@ -19,9 +20,9 @@ export class PreviewArgError extends Error {
 
 export function parsePort(value) {
   if (value === undefined || value === '') throw new PreviewArgError('Missing value for --port. Use --port 4329 or --port=4329.');
-  if (!/^\d+$/.test(value)) throw new PreviewArgError(`Invalid --port value "${value}". Use an integer from 1 to 65535.`);
+  if (!/^\d+$/.test(value)) throw new PreviewArgError(`Invalid --port value "${value}". Use an integer from 1 to ${MAX_PORT}.`);
   const port = Number(value);
-  if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new PreviewArgError(`Invalid --port value "${value}". Use an integer from 1 to 65535.`);
+  if (!Number.isSafeInteger(port) || port < 1 || port > MAX_PORT) throw new PreviewArgError(`Invalid --port value "${value}". Use an integer from 1 to ${MAX_PORT}.`);
   return port;
 }
 
@@ -69,6 +70,7 @@ export function buildPreviewArgs(parsed) {
   const args = ['run', 'preview', '--'];
   if (!parsed.explicitHost) args.push('--host', DEFAULT_HOST);
   if (!parsed.explicitPort) args.push('--port', String(DEFAULT_PORT));
+  args.push('--strictPort');
   args.push(...parsed.passthrough);
   return args;
 }
@@ -88,12 +90,14 @@ export function tempMirrorTemplate() {
 }
 
 export function retryCommand(port) {
+  if (port >= MAX_PORT) return `No automatic higher-port retry is available; choose an available port from 1 to ${MAX_PORT - 1}.`;
   return `npm run start:local -- --port ${port + 1}`;
 }
 
 export function busyPortMessage({ host, port, explicitPort }) {
   const requested = explicitPort ? 'requested' : 'default';
-  return `The ${requested} preview port ${port} is already in use on ${host}. Stop the other process or retry with: ${retryCommand(port)}`;
+  const retry = port >= MAX_PORT ? retryCommand(port) : `retry with: ${retryCommand(port)}`;
+  return `The ${requested} preview port ${port} is already in use on ${host}. Stop the other process; ${retry}`;
 }
 
 export async function assertPortAvailable(host, port) {

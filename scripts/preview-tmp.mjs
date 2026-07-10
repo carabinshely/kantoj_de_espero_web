@@ -22,7 +22,7 @@ function run(command, args, { cwd }) {
   const result = spawnSync(command, args, { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
   if (result.status !== 0) {
     const error = new Error(`${command} ${args.join(' ')} failed with status ${result.status ?? 1}`);
-    error.exitCode = result.status ?? 1;
+    error.exitCode = result.signal ? exitCodeForSignal(result.signal) : (result.status ?? 1);
     throw error;
   }
 }
@@ -58,6 +58,8 @@ export async function main(argv = process.argv.slice(2), options = {}) {
   let child;
   let stoppingSignal;
   let killTimer;
+  let cleanupPromise;
+  let signalHandlers;
 
   const parsed = parsePreviewArgs(argv);
 
@@ -73,31 +75,40 @@ export async function main(argv = process.argv.slice(2), options = {}) {
 
   async function finish(exitCode) {
     if (killTimer) clearTimeout(killTimer);
-    await cleanup(targetDir);
+    cleanupPromise = cleanupPromise ?? cleanup(targetDir);
+    await cleanupPromise;
     return exitCode;
   }
 
   try {
     targetDir = await mkdtemp(tempMirrorTemplate());
     console.log(`[preview:tmp] mirror ${targetDir}`);
-    await copyToMirror(sourceDir, targetDir);
-    run('npm', ['ci'], { cwd: targetDir });
-    run('npm', ['run', 'build'], { cwd: targetDir });
-
-    const previewArgs = buildPreviewArgs(parsed);
-    console.log(`[preview:tmp] npm ${previewArgs.join(' ')}`);
-    child = spawn('npm', previewArgs, { cwd: targetDir, stdio: 'inherit', shell: process.platform === 'win32', detached: process.platform !== 'win32' });
 
     const stop = (signal) => {
       if (stoppingSignal) return;
       stoppingSignal = signal;
       if (child && !child.killed) killChildTree(child, signal);
+      if (!child) cleanupPromise = cleanupPromise ?? cleanup(targetDir);
       killTimer = setTimeout(() => {
         if (child && !child.killed) killChildTree(child, 'SIGKILL');
       }, 5000);
     };
-    process.once('SIGINT', () => stop('SIGINT'));
-    process.once('SIGTERM', () => stop('SIGTERM'));
+    signalHandlers = {
+      onSigint: () => stop('SIGINT'),
+      onSigterm: () => stop('SIGTERM')
+    };
+    process.once('SIGINT', signalHandlers.onSigint);
+    process.once('SIGTERM', signalHandlers.onSigterm);
+
+    await copyToMirror(sourceDir, targetDir);
+    run('npm', ['ci'], { cwd: targetDir });
+    run('npm', ['run', 'build'], { cwd: targetDir });
+
+    if (stoppingSignal) return finish(exitCodeForSignal(stoppingSignal));
+
+    const previewArgs = buildPreviewArgs(parsed);
+    console.log(`[preview:tmp] npm ${previewArgs.join(' ')}`);
+    child = spawn('npm', previewArgs, { cwd: targetDir, stdio: 'inherit', shell: process.platform === 'win32', detached: process.platform !== 'win32' });
 
     let childExitResult;
     const childExit = new Promise((resolve) => {
@@ -141,10 +152,16 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     return finish(code ?? 0);
   } catch (error) {
     if (child && !child.killed) killChildTree(child, 'SIGTERM');
-    await cleanup(targetDir);
+    cleanupPromise = cleanupPromise ?? cleanup(targetDir);
+    await cleanupPromise;
     if (error?.exitCode !== undefined) return error.exitCode;
     console.error(`[preview:tmp] ${error.message}`);
     return 1;
+  } finally {
+    if (signalHandlers) {
+      process.removeListener('SIGINT', signalHandlers.onSigint);
+      process.removeListener('SIGTERM', signalHandlers.onSigterm);
+    }
   }
 }
 

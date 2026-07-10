@@ -10,11 +10,14 @@ import {
   DEFAULT_HOST,
   DEFAULT_PORT,
   EXCLUDED_PARTS,
+  MAX_PORT,
   MIRROR_PREFIX,
   PreviewArgError,
+  busyPortMessage,
   buildPreviewArgs,
   isSafeMirrorPath,
   parsePreviewArgs,
+  retryCommand,
   tempMirrorParent,
   tempMirrorTemplate
 } from './preview-tmp-utils.mjs';
@@ -38,7 +41,7 @@ function assertThrows(fn, expected) {
   assert(false, `Expected invalid port failure for ${expected}.`);
 }
 
-async function makeFixture({ buildFails = false, installFails = false } = {}) {
+async function makeFixture({ buildFails = false, installFails = false, buildDelayMs = 0 } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'preview-tmp-fixture-'));
   cleanup.push(() => rm(dir, { recursive: true, force: true }));
   const packageJson = {
@@ -54,7 +57,12 @@ async function makeFixture({ buildFails = false, installFails = false } = {}) {
   if (installFails) packageJson.dependencies = { 'fixture-missing-lock-entry': '1.0.0' };
   await writeFile(join(dir, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`);
   await writeFile(join(dir, 'package-lock.json'), `${JSON.stringify({ lockfileVersion: 3, requires: true, packages: { '': packageJson } }, null, 2)}\n`);
-  await writeFile(join(dir, 'build.mjs'), buildFails ? "console.error('fixture build failed'); process.exit(7);\n" : "console.log('fixture build ok');\n");
+  const buildScript = buildFails
+    ? "console.error('fixture build failed'); process.exit(7);\n"
+    : buildDelayMs > 0
+      ? `console.log('fixture build started'); setTimeout(() => console.log('fixture build ok'), ${buildDelayMs});\n`
+      : "console.log('fixture build ok');\n";
+  await writeFile(join(dir, 'build.mjs'), buildScript);
   await writeFile(join(dir, 'preview.mjs'), `
 import { createServer } from 'node:http';
 const args = process.argv.slice(2);
@@ -93,7 +101,8 @@ function runPreview(fixtureDir, args = []) {
   const child = spawn(process.execPath, [scriptPath, ...args], {
     cwd: repoDir,
     env: { ...process.env, PREVIEW_TMP_SOURCE_DIR: fixtureDir },
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: ['ignore', 'pipe', 'pipe'],
+    detached: process.platform !== 'win32'
   });
   let stdout = '';
   let stderr = '';
@@ -134,7 +143,11 @@ try {
     const message = assertThrows(() => parsePreviewArgs(args), label);
     assert(/--port|integer|Missing/.test(message), `Invalid ${label} port must explain the port contract.`);
   }
-  assert(buildPreviewArgs(parsedDefault).join(' ') === 'run preview -- --host 127.0.0.1 --port 4329', 'Default preview invocation must pass explicit loopback host and port to Astro.');
+  assert(buildPreviewArgs(parsedDefault).join(' ') === 'run preview -- --host 127.0.0.1 --port 4329 --strictPort', 'Default preview invocation must pass explicit loopback host, port, and strict-port binding to Astro.');
+  assert(!retryCommand(MAX_PORT).includes(String(MAX_PORT + 1)), 'Maximum port retry guidance must never suggest invalid port 65536.');
+  assert(retryCommand(MAX_PORT).includes(`1 to ${MAX_PORT - 1}`), 'Maximum port retry guidance must explain the valid alternate-port range.');
+  const maxPortMessage = busyPortMessage({ host: DEFAULT_HOST, port: MAX_PORT, explicitPort: true });
+  assert(!maxPortMessage.includes(String(MAX_PORT + 1)) && maxPortMessage.includes(`1 to ${MAX_PORT - 1}`), 'Maximum busy-port output must report no higher retry without suggesting 65536.');
   assert(EXCLUDED_PARTS.has('.git') && EXCLUDED_PARTS.has('dist') && EXCLUDED_PARTS.has('node_modules'), 'Mirror exclusions must include .git, dist, and node_modules.');
   assert(tempMirrorParent() === tmpdir() && tempMirrorTemplate().startsWith(join(tmpdir(), MIRROR_PREFIX)), 'Temporary mirrors must be per-run directories under the OS temp directory.');
   assert(isSafeMirrorPath('/repo/web', '/repo/web/src/pages/index.astro'), 'Normal source files must be copyable into the mirror.');
@@ -197,6 +210,21 @@ try {
   const installFailResult = await installFailRun.exit;
   assert(installFailResult.code !== 0, 'npm ci failures must preserve a nonzero failing status.');
   assert(!installFailResult.stdout.includes('[preview:tmp] ready') && !installFailResult.stderr.includes('[preview:tmp] ready'), 'npm ci failures must suppress ready URLs.');
+
+  const signalFixture = await makeFixture({ buildDelayMs: 5_000 });
+  const signalPortServer = await reservePort(0);
+  const signalPort = signalPortServer.address().port;
+  await new Promise((resolve) => signalPortServer.close(resolve));
+  const signalRun = runPreview(signalFixture, ['--port', String(signalPort)]);
+  const mirrorOutput = await waitForOutput(signalRun, /\[preview:tmp\] mirror (.+)/);
+  const signalMirrorPath = mirrorOutput[1].trim();
+  await waitForOutput(signalRun, /fixture build started/);
+  if (process.platform !== 'win32' && signalRun.child.pid) process.kill(-signalRun.child.pid, 'SIGTERM');
+  else signalRun.child.kill('SIGTERM');
+  const signalBuildResult = await signalRun.exit;
+  assert(signalBuildResult.code === 143 || signalBuildResult.signal === 'SIGTERM', `SIGTERM during build must preserve the signal exit code (got ${JSON.stringify(signalBuildResult)}).`);
+  assert(!signalRun.stdout.includes('npm run preview'), `SIGTERM during build must prevent the preview child from starting (stdout: ${signalRun.stdout}).`);
+  assert(!existsSync(signalMirrorPath), 'SIGTERM during build must remove the temporary mirror.');
 
   const readme = await readFile('README.md', 'utf8');
   for (const required of ['npm run start:local', 'snapshot', '127.0.0.1', '--port', 'busy', 'Ctrl+C', 'cleanup', 'WSL', 'npm run dev']) {

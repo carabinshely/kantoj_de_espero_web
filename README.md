@@ -13,6 +13,49 @@ Prerequisites:
 ```bash
 npm install
 npm run export:data
+npm run start:local
+```
+
+
+### Browser QA from WSL or `/mnt/c`
+
+Use `npm run start:local` as the primary browser-QA lane when this repo is checked out under WSL/`/mnt/c` or when you need a reproducible local preview:
+
+```bash
+npm run start:local
+```
+
+`start:local` is a snapshot server, not a live-edit development server. Each run creates a fresh per-run mirror under Linux temporary storage, safely excludes `.git`, `dist`, `.astro`, and `node_modules`, runs deterministic `npm ci`, builds the site, then starts Astro preview from that mirror. The helper prints `[preview:tmp] ready http://127.0.0.1:4329/` only after the listener is actually reachable, and removes the temporary mirror during normal exit or `Ctrl+C`/`SIGTERM` cleanup.
+
+Defaults are intentionally loopback-only:
+
+```text
+host: 127.0.0.1
+port: 4329
+```
+
+Override the port explicitly when needed:
+
+```bash
+npm run start:local -- --port 4401
+npm run start:local -- --port=4401
+```
+
+If the requested or default port is busy, the command fails clearly instead of silently switching ports, and prints an exact retry command such as:
+
+```text
+npm run start:local -- --port 4330
+```
+
+Only override the host when you intentionally need non-loopback access:
+
+```bash
+npm run start:local -- --host 0.0.0.0 --port 4401
+```
+
+For live iterative development while editing files, keep using Astro dev directly:
+
+```bash
 npm run dev -- --host 127.0.0.1
 ```
 
@@ -69,13 +112,7 @@ npm run repair:deps
 
 Then rerun `npm run smoke:local` or `npm run verify`. If it still fails, remove `node_modules` and run `npm install` again.
 
-If `npm run dev -- --host 127.0.0.1` or `npm run preview -- --host 127.0.0.1` does not become reachable quickly from a WSL checkout under `/mnt/c`, use `npm run smoke:local` for a deterministic static check. If you need a browser-reachable Astro preview, mirror the site to Linux temp storage and serve from there:
-
-```bash
-npm run preview:tmp -- --host 127.0.0.1 --port 4329
-```
-
-`preview:tmp` copies the public website repo to `/tmp/kantoj-de-espero-preview`, reuses `/tmp` dependencies when available, builds, and starts Astro preview from the Linux filesystem. This avoids WSL/Windows filesystem I/O hangs seen when Astro preview starts directly under `/mnt/c`.
+If `npm run dev -- --host 127.0.0.1` or `npm run preview -- --host 127.0.0.1` does not become reachable quickly from a WSL checkout under `/mnt/c`, use `npm run smoke:local` for a deterministic static check or `npm run start:local` for browser QA against a fresh built snapshot. `preview:tmp` remains the underlying helper, but `start:local` is the maintained command documented for local browser QA.
 
 After implementing launch-facing changes, rerun `/devex-review` or an equivalent timed manual pass and compare time-to-hello-world against the target: under 2 minutes for `smoke:local`, and 2 to 5 minutes for a healthy full `npm run verify`.
 

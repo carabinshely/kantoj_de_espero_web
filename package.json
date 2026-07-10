@@ -6,6 +6,7 @@
   "scripts": {
     "export:data": "node scripts/export-public-data.mjs",
     "dev": "astro dev",
+    "start:local": "node scripts/preview-tmp.mjs",
     "repair:deps": "npm install --include=optional",
     "build": "astro build",
     "preview": "astro preview",
@@ -14,7 +15,8 @@
     "verify:seo": "node scripts/verify-seo.mjs",
     "verify:privacy": "node scripts/verify-privacy.mjs",
     "verify:launch": "node scripts/verify-launch.mjs",
-    "verify": "npm run build && npm run typecheck && npm run verify:data && npm run verify:routes && npm run verify:seo && npm run verify:privacy && npm run verify:analytics",
+    "verify:preview-tmp": "node scripts/verify-preview-tmp.mjs",
+    "verify": "npm run build && npm run typecheck && npm run verify:data && npm run verify:routes && npm run verify:seo && npm run verify:privacy && npm run verify:analytics && npm run verify:preview-tmp",
     "typecheck": "tsc --noEmit",
     "verify:full": "npm run export:data && npm run verify",
     "smoke:local": "npm run build && node scripts/smoke-local.mjs",

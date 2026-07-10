@@ -1,58 +1,141 @@
-import { cp, mkdir, readdir, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { cp, mkdtemp, rm } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
-import { tmpdir } from 'node:os';
+import {
+  PreviewArgError,
+  assertPortAvailable,
+  buildPreviewArgs,
+  busyPortMessage,
+  exitCodeForSignal,
+  isSafeMirrorPath,
+  parsePreviewArgs,
+  tempMirrorTemplate,
+  waitForListener
+} from './preview-tmp-utils.mjs';
 
-const sourceDir = resolve(new URL('..', import.meta.url).pathname);
-const targetDir = join(tmpdir(), 'kantoj-de-espero-preview');
-const preserve = new Set(['node_modules']);
-const excluded = new Set(['.git', 'dist', 'node_modules']);
+const scriptPath = fileURLToPath(import.meta.url);
+const defaultSourceDir = resolve(dirname(scriptPath), '..');
 
-async function resetTarget() {
-  await mkdir(targetDir, { recursive: true });
-  for (const entry of await readdir(targetDir, { withFileTypes: true })) {
-    if (preserve.has(entry.name)) continue;
-    await rm(join(targetDir, entry.name), { recursive: true, force: true });
+function run(command, args, { cwd }) {
+  console.log(`[preview:tmp] ${command} ${args.join(' ')}`);
+  const result = spawnSync(command, args, { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
+  if (result.status !== 0) {
+    const error = new Error(`${command} ${args.join(' ')} failed with status ${result.status ?? 1}`);
+    error.exitCode = result.status ?? 1;
+    throw error;
   }
 }
 
-function shouldCopy(src) {
-  const relative = src.slice(sourceDir.length).replace(/^[/\\]/, '');
-  if (!relative) return true;
-  return !relative.split(/[/\\]/).some((part) => excluded.has(part));
+async function copyToMirror(sourceDir, targetDir) {
+  await cp(sourceDir, targetDir, {
+    recursive: true,
+    filter: (src) => isSafeMirrorPath(sourceDir, src)
+  });
 }
 
-function run(command, args, options = {}) {
-  console.log(`[preview:tmp] ${command} ${args.join(' ')}`);
-  const result = spawnSync(command, args, { cwd: targetDir, stdio: 'inherit', shell: process.platform === 'win32', ...options });
-  if (result.status !== 0) process.exit(result.status ?? 1);
-}
 
-await resetTarget();
-await cp(sourceDir, targetDir, { recursive: true, filter: shouldCopy });
-
-const installArgs = existsSync(join(targetDir, 'package-lock.json')) ? ['install'] : ['install'];
-run('npm', installArgs);
-run('npm', ['run', 'build']);
-
-const passthrough = process.argv.slice(2);
-const hasHost = passthrough.some((arg) => arg === '--host' || arg.startsWith('--host='));
-const hasPort = passthrough.some((arg) => arg === '--port' || arg.startsWith('--port='));
-const previewArgs = ['run', 'preview', '--'];
-if (!hasHost) previewArgs.push('--host', '127.0.0.1');
-if (!hasPort) previewArgs.push('--port', '4329');
-previewArgs.push(...passthrough);
-
-console.log(`[preview:tmp] serving mirrored build from ${targetDir}`);
-const child = spawn('npm', previewArgs, { cwd: targetDir, stdio: 'inherit', shell: process.platform === 'win32' });
-
-function stop(signal) {
+function killChildTree(child, signal) {
+  if (process.platform !== 'win32' && child.pid) {
+    try {
+      process.kill(-child.pid, signal);
+      return;
+    } catch {
+      // Fall back to killing the direct child if the process group is already gone.
+    }
+  }
   child.kill(signal);
 }
-process.on('SIGINT', () => stop('SIGINT'));
-process.on('SIGTERM', () => stop('SIGTERM'));
-child.on('exit', (code, signal) => {
-  if (signal) process.kill(process.pid, signal);
-  process.exit(code ?? 0);
-});
+
+async function cleanup(targetDir) {
+  if (!targetDir) return;
+  await rm(targetDir, { recursive: true, force: true });
+}
+
+export async function main(argv = process.argv.slice(2), options = {}) {
+  const sourceDir = resolve(options.sourceDir ?? process.env.PREVIEW_TMP_SOURCE_DIR ?? defaultSourceDir);
+  let targetDir;
+  let child;
+  let stoppingSignal;
+  let killTimer;
+
+  const parsed = parsePreviewArgs(argv);
+
+  try {
+    await assertPortAvailable(parsed.host, parsed.port);
+  } catch (error) {
+    if (error?.code === 'EADDRINUSE') {
+      console.error(`[preview:tmp] ${busyPortMessage(parsed)}`);
+      return 1;
+    }
+    throw error;
+  }
+
+  async function finish(exitCode) {
+    if (killTimer) clearTimeout(killTimer);
+    await cleanup(targetDir);
+    return exitCode;
+  }
+
+  try {
+    targetDir = await mkdtemp(tempMirrorTemplate());
+    console.log(`[preview:tmp] mirror ${targetDir}`);
+    await copyToMirror(sourceDir, targetDir);
+    run('npm', ['ci'], { cwd: targetDir });
+    run('npm', ['run', 'build'], { cwd: targetDir });
+
+    const previewArgs = buildPreviewArgs(parsed);
+    console.log(`[preview:tmp] npm ${previewArgs.join(' ')}`);
+    child = spawn('npm', previewArgs, { cwd: targetDir, stdio: 'inherit', shell: process.platform === 'win32', detached: process.platform !== 'win32' });
+
+    const stop = (signal) => {
+      if (stoppingSignal) return;
+      stoppingSignal = signal;
+      if (child && !child.killed) killChildTree(child, signal);
+      killTimer = setTimeout(() => {
+        if (child && !child.killed) killChildTree(child, 'SIGKILL');
+      }, 5000);
+    };
+    process.once('SIGINT', () => stop('SIGINT'));
+    process.once('SIGTERM', () => stop('SIGTERM'));
+
+    const childExit = new Promise((resolve) => {
+      child.once('exit', (code, signal) => resolve({ code, signal }));
+    });
+
+    await Promise.race([
+      waitForListener(parsed.host, parsed.port),
+      childExit.then(({ code, signal }) => {
+        const detail = signal ? `signal ${signal}` : `status ${code ?? 1}`;
+        throw new Error(`Preview server exited before it was ready (${detail}).`);
+      })
+    ]);
+
+    console.log(`[preview:tmp] ready ${parsed.readyUrl}`);
+
+    const { code, signal } = await childExit;
+    if (stoppingSignal) return finish(exitCodeForSignal(stoppingSignal));
+    if (signal) return finish(exitCodeForSignal(signal));
+    return finish(code ?? 0);
+  } catch (error) {
+    if (child && !child.killed) killChildTree(child, 'SIGTERM');
+    await cleanup(targetDir);
+    if (error?.exitCode !== undefined) return error.exitCode;
+    console.error(`[preview:tmp] ${error.message}`);
+    return 1;
+  }
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === scriptPath) {
+  try {
+    const exitCode = await main();
+    process.exit(exitCode);
+  } catch (error) {
+    if (error instanceof PreviewArgError) {
+      console.error(`[preview:tmp] ${error.message}`);
+      process.exit(1);
+    }
+    console.error(`[preview:tmp] ${error.stack ?? error.message}`);
+    process.exit(1);
+  }
+}

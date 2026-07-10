@@ -38,7 +38,7 @@ function assertThrows(fn, expected) {
   assert(false, `Expected invalid port failure for ${expected}.`);
 }
 
-async function makeFixture({ buildFails = false } = {}) {
+async function makeFixture({ buildFails = false, installFails = false } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'preview-tmp-fixture-'));
   cleanup.push(() => rm(dir, { recursive: true, force: true }));
   const packageJson = {
@@ -51,6 +51,7 @@ async function makeFixture({ buildFails = false } = {}) {
       preview: 'node preview.mjs'
     }
   };
+  if (installFails) packageJson.dependencies = { 'fixture-missing-lock-entry': '1.0.0' };
   await writeFile(join(dir, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`);
   await writeFile(join(dir, 'package-lock.json'), `${JSON.stringify({ lockfileVersion: 3, requires: true, packages: { '': packageJson } }, null, 2)}\n`);
   await writeFile(join(dir, 'build.mjs'), buildFails ? "console.error('fixture build failed'); process.exit(7);\n" : "console.log('fixture build ok');\n");
@@ -152,6 +153,15 @@ try {
   assert(busyResult.stderr.includes(`npm run start:local -- --port ${busyPort + 1}`), 'Busy-port failure must print an exact retry command.');
   assert(!busyResult.stdout.includes('[preview:tmp] ready') && !busyResult.stderr.includes('[preview:tmp] ready'), 'Busy-port failures must not print a ready URL.');
 
+  const defaultBusy = await reservePort(DEFAULT_PORT);
+  const defaultBusyRun = runPreview(fixture);
+  const defaultBusyResult = await defaultBusyRun.exit;
+  await new Promise((resolve) => defaultBusy.close(resolve));
+  assert(defaultBusyResult.code !== 0, 'Busy default port 4329 must fail nonzero.');
+  assert(defaultBusyResult.stderr.includes(`default preview port ${DEFAULT_PORT}`), 'Busy default-port failure must identify the default port.');
+  assert(defaultBusyResult.stderr.includes(`npm run start:local -- --port ${DEFAULT_PORT + 1}`), 'Busy default-port failure must print an exact retry command.');
+  assert(!defaultBusyResult.stdout.includes('[preview:tmp] ready') && !defaultBusyResult.stderr.includes('[preview:tmp] ready'), 'Busy default-port failures must not print a ready URL.');
+
   const okPortServer = await reservePort(0);
   const okPort = okPortServer.address().port;
   await new Promise((resolve) => okPortServer.close(resolve));
@@ -182,6 +192,12 @@ try {
   assert(failResult.code === 7, 'Build failures must preserve the failing command status.');
   assert(!failResult.stdout.includes('[preview:tmp] ready') && !failResult.stderr.includes('[preview:tmp] ready'), 'Build failures must suppress ready URLs.');
 
+  const installFailFixture = await makeFixture({ installFails: true });
+  const installFailRun = runPreview(installFailFixture, ['--port', String(okPort + 2)]);
+  const installFailResult = await installFailRun.exit;
+  assert(installFailResult.code !== 0, 'npm ci failures must preserve a nonzero failing status.');
+  assert(!installFailResult.stdout.includes('[preview:tmp] ready') && !installFailResult.stderr.includes('[preview:tmp] ready'), 'npm ci failures must suppress ready URLs.');
+
   const readme = await readFile('README.md', 'utf8');
   for (const required of ['npm run start:local', 'snapshot', '127.0.0.1', '--port', 'busy', 'Ctrl+C', 'cleanup', 'WSL', 'npm run dev']) {
     assert(readme.includes(required), `README must document ${required} for the local browser QA contract.`, 'Document start:local snapshot semantics, WSL rationale, loopback default, overrides, busy ports, stopping, cleanup, and dev distinction.');
@@ -189,10 +205,10 @@ try {
 
   const script = await readFile('scripts/preview-tmp.mjs', 'utf8');
   assert(script.includes("['ci']"), 'Temporary preview helper must use deterministic npm ci in the mirror.');
-  assert(script.includes('waitForListener'), 'Temporary preview helper must wait for the listener before printing readiness.');
+  assert(script.includes('waitForHttpResponse'), 'Temporary preview helper must wait for an HTTP response before printing readiness.');
   assert(script.includes('SIGTERM') && script.includes('SIGINT'), 'Temporary preview helper must handle termination signals.');
 
-  pass(check, 'start:local contract, parser, mirror safety, busy-port, readiness, failure, signal cleanup, and README coverage passed');
+  pass(check, 'start:local contract, parser, mirror safety, default and explicit busy-port, HTTP readiness, install/build failure, signal cleanup, and README coverage passed');
 } finally {
   for (const remove of cleanup.reverse()) await remove().catch(() => {});
 }

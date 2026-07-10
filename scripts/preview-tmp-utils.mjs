@@ -1,4 +1,5 @@
-import { createServer, Socket } from 'node:net';
+import { request } from 'node:http';
+import { createServer } from 'node:net';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -106,36 +107,31 @@ export async function assertPortAvailable(host, port) {
   });
 }
 
-export async function waitForListener(host, port, { timeoutMs = 30_000, intervalMs = 100 } = {}) {
+export async function waitForHttpResponse(host, port, { timeoutMs = 30_000, intervalMs = 100 } = {}) {
   const probeHost = host === '0.0.0.0' || host === '::' ? DEFAULT_HOST : host;
   const startedAt = Date.now();
   let lastError;
   while (Date.now() - startedAt < timeoutMs) {
     try {
-      await connectOnce(probeHost, port);
+      await requestOnce(probeHost, port);
       return;
     } catch (error) {
       lastError = error;
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
     }
   }
-  throw new Error(`Timed out waiting for preview listener on ${host}:${port}${lastError?.message ? ` (${lastError.message})` : ''}`);
+  throw new Error(`Timed out waiting for an HTTP response from preview on ${host}:${port}${lastError?.message ? ` (${lastError.message})` : ''}`);
 }
 
-function connectOnce(host, port) {
+function requestOnce(host, port) {
   return new Promise((resolve, reject) => {
-    const socket = new Socket();
-    socket.setTimeout(1000);
-    socket.once('connect', () => {
-      socket.destroy();
+    const probe = request({ host, port, path: '/', method: 'GET', timeout: 1000 }, (response) => {
+      response.resume();
       resolve();
     });
-    socket.once('timeout', () => {
-      socket.destroy();
-      reject(new Error('connection timed out'));
-    });
-    socket.once('error', reject);
-    socket.connect(port, host);
+    probe.once('timeout', () => probe.destroy(new Error('request timed out')));
+    probe.once('error', reject);
+    probe.end();
   });
 }
 

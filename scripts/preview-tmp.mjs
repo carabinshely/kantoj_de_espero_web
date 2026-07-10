@@ -11,7 +11,7 @@ import {
   isSafeMirrorPath,
   parsePreviewArgs,
   tempMirrorTemplate,
-  waitForListener
+  waitForHttpResponse
 } from './preview-tmp-utils.mjs';
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -99,21 +99,43 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     process.once('SIGINT', () => stop('SIGINT'));
     process.once('SIGTERM', () => stop('SIGTERM'));
 
+    let childExitResult;
     const childExit = new Promise((resolve) => {
-      child.once('exit', (code, signal) => resolve({ code, signal }));
+      child.once('exit', (code, signal) => {
+        childExitResult = { code, signal };
+        resolve(childExitResult);
+      });
+      child.once('error', (error) => {
+        childExitResult = { error };
+        resolve(childExitResult);
+      });
     });
 
+    function previewExitError({ code, signal, error }) {
+      if (error) return new Error(`Preview server failed before it was ready (${error.message}).`);
+      const detail = signal ? `signal ${signal}` : `status ${code ?? 1}`;
+      return new Error(`Preview server exited before it was ready (${detail}).`);
+    }
+
+    function assertChildAlive() {
+      if (childExitResult || child.exitCode !== null || child.signalCode !== null) {
+        throw previewExitError(childExitResult ?? { code: child.exitCode, signal: child.signalCode });
+      }
+    }
+
     await Promise.race([
-      waitForListener(parsed.host, parsed.port),
-      childExit.then(({ code, signal }) => {
-        const detail = signal ? `signal ${signal}` : `status ${code ?? 1}`;
-        throw new Error(`Preview server exited before it was ready (${detail}).`);
-      })
+      waitForHttpResponse(parsed.host, parsed.port),
+      childExit.then((result) => { throw previewExitError(result); })
     ]);
+    // A listener can appear between the availability probe and the child bind. Give a
+    // pending child exit one turn to surface, then require the preview child to remain alive.
+    await new Promise((resolve) => setImmediate(resolve));
+    assertChildAlive();
 
     console.log(`[preview:tmp] ready ${parsed.readyUrl}`);
 
-    const { code, signal } = await childExit;
+    const { code, signal, error } = await childExit;
+    if (error) return finish(1);
     if (stoppingSignal) return finish(exitCodeForSignal(stoppingSignal));
     if (signal) return finish(exitCodeForSignal(signal));
     return finish(code ?? 0);

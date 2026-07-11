@@ -24,7 +24,7 @@ for (const song of catalog.songs) {
   for (const key of ['sha256', 'utf8Bytes', 'lineBreaks']) {
     if (actual[key] !== expected[key]) fail({ check: 'verify:lyrics', problem: `Published lyrics changed for ${song.id} (${key}).`, cause: 'The editorial redesign must preserve lyrics_eo byte-for-byte, including line breaks.', path: `src/data/public-catalog.json:${song.id}.lyrics_eo`, fix: 'Restore the exact published string; fixture changes require a separately approved lyric-publication review.' });
   }
-  const escaped = song.lyrics_eo.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const escaped = song.lyrics_eo.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;').replace(/\"/g, '&quot;');
   for (const route of [`dist/en/songs/${song.slug}/index.html`, `dist/eo/kantoj/${song.slug}/index.html`]) {
     if (existsSync(route) && !readFileSync(route, 'utf8').includes(escaped)) fail({ check: 'verify:lyrics', problem: `Rendered lyrics differ for ${song.id}.`, cause: 'The template must pass published lyrics_eo through unchanged after HTML escaping.', path: route, fix: 'Render the opaque lyrics_eo value directly in the lyric reading surface.' });
   }

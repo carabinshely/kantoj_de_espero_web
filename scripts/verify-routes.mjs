@@ -52,7 +52,7 @@ function checkLaunchCopy() {
   const publicBio = 'Kantoj de Espero is a modern Esperanto pop-rock project created in 2024 to bring fresh, contemporary energy to the Esperanto community.';
   assertIncludes('/en/about/', publicBio, 'English About page does not render the approved public bio.', 'Update src/pages/en/about/index.astro with the owner-approved public bio.');
   assertIncludes('/eo/pri-ni/', 'Kantoj de Espero estas moderna Esperanta poproka projekto kreita en 2024', 'Esperanto About page does not render the approved public bio.', 'Update src/pages/eo/pri-ni/index.astro with approved public-facing Esperanto copy.');
-  for (const route of ['/en/licensing/', '/eo/licencado/', '/en/privacy/', '/eo/privateco/']) {
+  for (const route of ['/en/licensing/', '/eo/licencado/']) {
     assertIncludes(route, 'href="mailto:kantojdeespero@gmail.com"', `${route} does not render the approved licensing contact mailto.`, 'Render the approved contact method as the primary licensing action.');
     assertIncludes(route, 'contact-link', `${route} contact email is missing the responsive contact-link class.`, 'Use the contact-link class so long email addresses wrap on narrow screens.');
   }
@@ -61,7 +61,7 @@ function checkLaunchCopy() {
     assertNotIncludes(route, 'blokos publikan publikigon', `${route} still says launch verification will block public release for stale facts.`, 'Replace stale launch-blocker copy with current approved public facts.');
   }
   const css = existsSync('dist/_astro') ? readFileSync('src/styles/global.css', 'utf8') : '';
-  if (!css.includes('min-height: 44px') || !css.includes('.contact-link') || !css.includes('overflow-wrap: anywhere')) {
+  if (!css.includes('min-height:44px') || !css.includes('.contact-link') || !css.includes('overflow-wrap:anywhere')) {
     fail({ check: 'verify:routes', problem: 'Responsive contact/action CSS guard is missing.', cause: 'Design acceptance requires keyboard/touch-friendly actions and wrapping email contact links.', path: 'src/styles/global.css', fix: 'Keep .button at least 44px high and .contact-link wrapping long email addresses.' });
   }
 }

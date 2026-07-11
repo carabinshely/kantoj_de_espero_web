@@ -111,9 +111,11 @@ for (const song of catalog.songs) { checkPage(`/en/songs/${song.slug}/`, `/eo/ka
 for (const playlist of catalog.playlists) { checkPage(`/en/playlists/${playlist.slug_en}/`, `/eo/ludlistoj/${playlist.slug_eo}/`); checkPage(`/eo/ludlistoj/${playlist.slug_eo}/`, `/en/playlists/${playlist.slug_en}/`); }
 for (const route of ['/en/privacy/', '/eo/privateco/']) {
   const page = html(route);
-  if (!page.includes('<title>') || !page.toLowerCase().includes('privacy')) fail({ check: 'verify:seo', problem: `Privacy metadata is missing for ${route}.`, cause: 'Localized privacy pages must remain discoverable and accurately labelled.', path: `dist${route}index.html`, fix: 'Keep localized privacy title and description metadata through BaseLayout.' });
+  if (!page.includes('<title>') || !page.toLowerCase().includes(route.startsWith('/eo/') ? 'privateco' : 'privacy')) fail({ check: 'verify:seo', problem: `Privacy metadata is missing for ${route}.`, cause: 'Localized privacy pages must remain discoverable and accurately labelled.', path: `dist${route}index.html`, fix: 'Keep localized privacy title and description metadata through BaseLayout.' });
 }
 if (!existsSync('dist/sitemap-index.xml')) fail({ check: 'verify:seo', problem: 'Sitemap index is missing.', cause: '@astrojs/sitemap did not generate output.', path: 'dist/sitemap-index.xml', fix: 'Keep sitemap integration configured and rerun npm run build.' });
 const sitemap = readFileSync('dist/sitemap-index.xml', 'utf8') + (existsSync('dist/sitemap-0.xml') ? readFileSync('dist/sitemap-0.xml', 'utf8') : '');
 if (!sitemap.includes(base)) fail({ check: 'verify:seo', problem: 'Sitemap does not use configured public base URL.', cause: 'Astro site/base configuration mismatch.', path: 'dist/sitemap-index.xml', fix: 'Set site/base in astro.config.mjs.' });
-pass('verify:seo', 'canonical, hreflang, sitemap, JSON-LD, and share-preview metadata checks passed');
+const builtAssets = existsSync('dist/_astro') ? readFileSync('src/styles/global.css', 'utf8') : '';
+if (/fonts\.(googleapis|gstatic)\.com/i.test(builtAssets) || !builtAssets.includes('/fonts/instrument-serif-latin-ext.woff2') || !existsSync('public/fonts/LICENSES.txt')) fail({ check: 'verify:seo', problem: 'Self-hosted font contract is missing or uses an external font URL.', cause: 'The editorial type system must remain local and licensed in production.', path: 'src/styles/global.css', fix: 'Use local /fonts WOFF2 files and retain public/fonts/LICENSES.txt.' });
+pass('verify:seo', 'canonical, hreflang, sitemap, JSON-LD, privacy metadata, and self-hosted font checks passed');

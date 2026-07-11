@@ -21,8 +21,8 @@ const shareImageUrl = defaultShareImageUrl();
 const fullTitle = title.includes(siteFacts.artistName) ? title : `${title} | ${siteFacts.artistName}`;
 const safeJsonLd = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
 const primaryNav = lang === 'eo'
-  ? { aria: 'Ĉefa navigado', songs: 'Kantoj', playlists: 'Ludlistoj', licensing: 'Licencado', about: 'Pri ni', privacy: 'Privateco', settings: 'Analitikaj agordoj', skip: 'Salti al enhavo' }
-  : { aria: 'Primary navigation', songs: 'Songs', playlists: 'Playlists', licensing: 'Licensing', about: 'About', privacy: 'Privacy', settings: 'Analytics settings', skip: 'Skip to content' };
+  ? { aria: 'Ĉefa navigado', songs: 'Kantoj', playlists: 'Ludlistoj', licensing: 'Licencado', about: 'Pri ni', privacy: 'Privateco', settings: 'Analitikaj agordoj', skip: 'Salti al enhavo', theme: 'Ŝalti malhelan legan reĝimon' }
+  : { aria: 'Primary navigation', songs: 'Songs', playlists: 'Playlists', licensing: 'Licensing', about: 'About', privacy: 'Privacy', settings: 'Analytics settings', skip: 'Skip to content', theme: 'Toggle dark reading mode' };
 const langHome = languages[lang].home;
 const otherLang: Lang = lang === 'en' ? 'eo' : 'en';
 const otherLangHome = languages[otherLang].home;
@@ -70,6 +70,7 @@ const navItems = isRootPath
       <a class="brand" href={pageHref(brandHref)}>{siteFacts.artistName}</a>
       <nav aria-label={primaryNav.aria}>
         {navItems.map((item) => <a href={pageHref(item.href)} aria-current={item.active ? 'page' : undefined}>{item.label}</a>)}
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">{primaryNav.theme}</button>
       </nav>
     </header>
     <main id="main">
@@ -80,5 +81,18 @@ const navItems = isRootPath
       <p><a href={pageHref(languages[lang].about)}>{primaryNav.about}</a> · <a href={pageHref(languages[lang].licensing)}>{primaryNav.licensing}</a> · <a href={pageHref(privacyHref)}>{primaryNav.privacy}</a> · <a href={pageHref(settingsHref)} data-consent-manage>{primaryNav.settings}</a></p>
     </footer>
     <AnalyticsConsent lang={lang} />
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const control = document.querySelector('[data-theme-toggle]');
+        const key = 'kantoj-reading-theme';
+        const apply = (dark) => { root.dataset.theme = dark ? 'dark' : ''; control?.setAttribute('aria-pressed', String(dark)); };
+        try { apply(localStorage.getItem(key) === 'dark'); } catch { apply(false); }
+        control?.addEventListener('click', () => {
+          const dark = root.dataset.theme !== 'dark'; apply(dark);
+          try { localStorage.setItem(key, dark ? 'dark' : 'light'); } catch { /* keep the reading mode usable */ }
+        });
+      })();
+    </script>
   </body>
 </html>

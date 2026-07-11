@@ -17,7 +17,11 @@ Files: ibm-plex-mono-400-latin-ext.woff2, ibm-plex-mono-400-latin.woff2,
 ibm-plex-mono-500-latin-ext.woff2, ibm-plex-mono-500-latin.woff2
 Copyright 2017 IBM Corp.
 
-The latin-ext files are retained for Esperanto glyph coverage, including
+Noto Serif — Noto Project, Google Fonts upstream
+Files: noto-serif-latin-ext.woff2, noto-serif-latin.woff2
+Copyright 2022 The Noto Project Authors
+
+Noto Serif provides complete Esperanto display glyph coverage, including
 ĉ, ĝ, ĥ, ĵ, ŝ, ŭ and their uppercase forms.
 
 --- SIL OPEN FONT LICENSE, Version 1.1 ---

@@ -4,6 +4,17 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-07-11
+
+### Changed
+- Simplified the header into a calm editorial navigation and removed the dark-reading-mode control.
+- Replaced the decorative empty hero geometry with text-led spacing.
+- Made the header language link retain the equivalent English or Esperanto page whenever it exists.
+
+### Fixed
+- Added a self-hosted Noto Serif fallback with complete Esperanto character coverage.
+- Aligned the language-switch label and its single underlined destination link.
+
 ## [0.1.8] - 2026-07-11
 
 ### Added

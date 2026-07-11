@@ -2,5 +2,6 @@
 import { pageHref } from '@/lib/seo';
 interface Props { href: string; label?: string }
 const { href, label = 'Read in the other language' } = Astro.props;
+const languageLabel = href.startsWith('/en/') ? 'Lingvo' : 'Language';
 ---
-<p class="language-switch"><a href={pageHref(href)}><span class="meta">Language</span>&nbsp;{label}</a></p>
+<p class="language-switch"><span class="language-label">{languageLabel}</span><a href={pageHref(href)}>{label}</a></p>

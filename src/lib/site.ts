@@ -79,8 +79,12 @@ export function platformLabel(platform: string) {
 }
 
 export function playlistMood(playlist: PublicPlaylist) {
-  const values = `${playlist.purpose} ${playlist.intro_en}`.toLowerCase();
-  if (/(night|dream|memory|strange|mystery)/.test(values)) return 'sky';
-  if (/(love|heart|hope|warm)/.test(values)) return 'coral';
-  return 'green';
+  const treatments: Record<string, 'start' | 'hope' | 'love' | 'night' | 'memory'> = {
+    'start-here-modern-esperanto-pop-rock': 'start',
+    'hope-light-and-renewal': 'hope',
+    'love-loss-and-longing': 'love',
+    'night-city-and-inner-shadows': 'night',
+    'memory-music-and-strange-stories': 'memory'
+  };
+  return treatments[playlist.id] ?? 'start';
 }

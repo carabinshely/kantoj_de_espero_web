@@ -52,7 +52,7 @@ function checkLaunchCopy() {
   const publicBio = 'Kantoj de Espero is a modern Esperanto pop-rock project created in 2024 to bring fresh, contemporary energy to the Esperanto community.';
   assertIncludes('/en/about/', publicBio, 'English About page does not render the approved public bio.', 'Update src/pages/en/about/index.astro with the owner-approved public bio.');
   assertIncludes('/eo/pri-ni/', 'Kantoj de Espero estas moderna Esperanta poproka projekto kreita en 2024', 'Esperanto About page does not render the approved public bio.', 'Update src/pages/eo/pri-ni/index.astro with approved public-facing Esperanto copy.');
-  for (const route of ['/en/licensing/', '/eo/licencado/']) {
+  for (const route of ['/en/licensing/', '/eo/licencado/', '/en/privacy/', '/eo/privateco/']) {
     assertIncludes(route, 'href="mailto:kantojdeespero@gmail.com"', `${route} does not render the approved licensing contact mailto.`, 'Render the approved contact method as the primary licensing action.');
     assertIncludes(route, 'contact-link', `${route} contact email is missing the responsive contact-link class.`, 'Use the contact-link class so long email addresses wrap on narrow screens.');
   }
@@ -69,7 +69,7 @@ function checkLaunchCopy() {
 function requireRoute(route) {
   if (!existsSync(routePath(route))) fail({ check: 'verify:routes', problem: `Missing generated route ${route}`, cause: 'Astro did not emit an expected MVP route.', path: routePath(route), fix: 'Check page file/getStaticPaths and rerun npm run build.' });
 }
-const routes = ['/', '/en/', '/eo/', '/en/songs/', '/eo/kantoj/', '/en/playlists/', '/eo/ludlistoj/', '/en/about/', '/eo/pri-ni/', '/en/licensing/', '/eo/licencado/'];
+const routes = ['/', '/en/', '/eo/', '/en/songs/', '/eo/kantoj/', '/en/playlists/', '/eo/ludlistoj/', '/en/about/', '/eo/pri-ni/', '/en/licensing/', '/eo/licencado/', '/en/privacy/', '/eo/privateco/'];
 for (const route of routes) requireRoute(route);
 for (const song of catalog.songs) { requireRoute(`/en/songs/${song.slug}/`); requireRoute(`/eo/kantoj/${song.slug}/`); }
 for (const playlist of catalog.playlists) { requireRoute(`/en/playlists/${playlist.slug_en}/`); requireRoute(`/eo/ludlistoj/${playlist.slug_eo}/`); }
@@ -84,6 +84,10 @@ for (const route of allRoutes) { checkInternalHrefs(route); checkLocalizedShell(
 for (const route of routes) {
   const html = readFileSync(routePath(route), 'utf8');
   if (!html.includes('<main')) fail({ check: 'verify:routes', problem: `Route ${route} has no main landmark.`, cause: 'Base layout may not have rendered.', path: routePath(route), fix: 'Render routes through BaseLayout.' });
+}
+for (const route of ['/en/privacy/', '/eo/privateco/']) {
+  assertIncludes(route, 'analytics-settings', `${route} does not render the privacy settings anchor.`, 'Keep consent settings reachable on both localized privacy routes.');
+  assertIncludes(route, 'data-consent-manage', `${route} does not render a consent settings control.`, 'Preserve consent controls during visual changes.');
 }
 checkLaunchCopy();
 checkHomepageStalePublicCopy();

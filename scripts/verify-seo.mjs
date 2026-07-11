@@ -30,6 +30,8 @@ function expectedAlternate(route) {
   if (route === '/en/about/') return '/eo/pri-ni/';
   if (route === '/eo/pri-ni/') return '/en/about/';
   if (route === '/en/licensing/') return '/eo/licencado/';
+  if (route === '/en/privacy/') return '/eo/privateco/';
+  if (route === '/eo/privateco/') return '/en/privacy/';
   if (route === '/eo/licencado/') return '/en/licensing/';
   const song = catalog.songs.find((item) => route === `/en/songs/${item.slug}/` || route === `/eo/kantoj/${item.slug}/`);
   if (song) return route.startsWith('/en/') ? `/eo/kantoj/${song.slug}/` : `/en/songs/${song.slug}/`;
@@ -104,9 +106,13 @@ function checkPage(route, other) {
 checkSharePreviewAsset(sharePreviewPublicPath, 'Source');
 checkSharePreviewAsset(sharePreviewDistPath, 'Built');
 for (const route of representativeShareRoutes) checkSharePreviewMetadata(route);
-for (const route of ['/', '/en/', '/eo/', '/en/songs/', '/eo/kantoj/', '/en/playlists/', '/eo/ludlistoj/', '/en/about/', '/eo/pri-ni/', '/en/licensing/', '/eo/licencado/']) checkPage(route, true);
+for (const route of ['/', '/en/', '/eo/', '/en/songs/', '/eo/kantoj/', '/en/playlists/', '/eo/ludlistoj/', '/en/about/', '/eo/pri-ni/', '/en/licensing/', '/eo/licencado/', '/en/privacy/', '/eo/privateco/']) checkPage(route, true);
 for (const song of catalog.songs) { checkPage(`/en/songs/${song.slug}/`, `/eo/kantoj/${song.slug}/`); checkPage(`/eo/kantoj/${song.slug}/`, `/en/songs/${song.slug}/`); }
 for (const playlist of catalog.playlists) { checkPage(`/en/playlists/${playlist.slug_en}/`, `/eo/ludlistoj/${playlist.slug_eo}/`); checkPage(`/eo/ludlistoj/${playlist.slug_eo}/`, `/en/playlists/${playlist.slug_en}/`); }
+for (const route of ['/en/privacy/', '/eo/privateco/']) {
+  const page = html(route);
+  if (!page.includes('<title>') || !page.toLowerCase().includes('privacy')) fail({ check: 'verify:seo', problem: `Privacy metadata is missing for ${route}.`, cause: 'Localized privacy pages must remain discoverable and accurately labelled.', path: `dist${route}index.html`, fix: 'Keep localized privacy title and description metadata through BaseLayout.' });
+}
 if (!existsSync('dist/sitemap-index.xml')) fail({ check: 'verify:seo', problem: 'Sitemap index is missing.', cause: '@astrojs/sitemap did not generate output.', path: 'dist/sitemap-index.xml', fix: 'Keep sitemap integration configured and rerun npm run build.' });
 const sitemap = readFileSync('dist/sitemap-index.xml', 'utf8') + (existsSync('dist/sitemap-0.xml') ? readFileSync('dist/sitemap-0.xml', 'utf8') : '');
 if (!sitemap.includes(base)) fail({ check: 'verify:seo', problem: 'Sitemap does not use configured public base URL.', cause: 'Astro site/base configuration mismatch.', path: 'dist/sitemap-index.xml', fix: 'Set site/base in astro.config.mjs.' });

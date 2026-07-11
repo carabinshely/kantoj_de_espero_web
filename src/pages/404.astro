@@ -3,13 +3,5 @@ import { pageHref } from '@/lib/seo';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Page not found" description="This Kantoj de Espero page was not found." path="/404.html" lang="en">
-  <section class="hero">
-    <p class="eyebrow">404</p>
-    <h1>Page not found.</h1>
-    <p class="lede">This route does not exist yet, or it may have moved. Return to the catalog, playlists, or the Esperanto homepage.</p>
-    <div class="actions">
-      <a class="button accent" href={pageHref('/en/')}>Go to English home</a>
-      <a class="button" href={pageHref('/eo/')}>Iri al Esperanto</a>
-    </div>
-  </section>
+  <section class="hero"><p class="eyebrow">404 / Lost in the booklet</p><h1>This page is not here.</h1><p class="lede">Return to a listening path, the song catalog, or either language home.</p><div class="actions"><a class="button accent" href={pageHref('/en/')}>English home</a><a class="button" href={pageHref('/en/songs/')}>Songs</a><a class="button" href={pageHref('/en/playlists/')}>Playlists</a><a class="button" href={pageHref('/eo/')}>Esperanto</a></div></section>
 </BaseLayout>

@@ -77,3 +77,10 @@ export function realLinks(links: StreamingLinks) {
 export function platformLabel(platform: string) {
   return ({ spotify: 'Spotify', youtube_music: 'YouTube Music', apple_music: 'Apple Music', deezer: 'Deezer', amazon_music: 'Amazon Music', hyperfollow: 'All platforms' } as Record<string, string>)[platform] ?? platform;
 }
+
+export function playlistMood(playlist: PublicPlaylist) {
+  const values = `${playlist.purpose} ${playlist.intro_en}`.toLowerCase();
+  if (/(night|dream|memory|strange|mystery)/.test(values)) return 'sky';
+  if (/(love|heart|hope|warm)/.test(values)) return 'coral';
+  return 'green';
+}

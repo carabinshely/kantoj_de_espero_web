@@ -1,14 +1,14 @@
 ---
 import { pageHref } from '@/lib/seo';
-import TagChips from './TagChips.astro';
 import { localizedSong, songPath } from '@/lib/site';
 import type { Lang, PublicSong } from '@/lib/types';
-interface Props { song: PublicSong; lang: Lang }
-const { song, lang } = Astro.props;
+interface Props { song: PublicSong; lang: Lang; index?: number }
+const { song, lang, index } = Astro.props;
 const copy = localizedSong(song, lang);
+const gloss = lang === 'en' ? song.title_eo : song.title_en;
 ---
-<article class="card song-card">
-  <h3><a href={pageHref(songPath(song, lang))}>{copy.title}</a></h3>
-  <p>{copy.hook}</p>
-  <TagChips values={song.public_moods.slice(0, 3)} label="Song moods" />
+<article class="track-entry">
+  <span class="track-number">{String(index ?? 0).padStart(2, '0')}</span>
+  <div><h3><a href={pageHref(songPath(song, lang))}>{copy.title}</a></h3><p class="gloss">{gloss}</p><p>{copy.hook}</p></div>
+  <p class="track-meta meta">{song.public_moods.slice(0, 2).join(' / ')}</p>
 </article>

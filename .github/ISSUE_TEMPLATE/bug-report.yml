@@ -1,0 +1,58 @@
+name: Public site bug report
+description: Report a reproducible problem on the Kantoj de Espero website.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the site. Please do not include private source material, personal data, or unpublished lyrics in a report.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What went wrong?
+      description: Tell us what you expected and what happened instead.
+      placeholder: I expected ... but ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the smallest set of steps that shows the problem.
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      description: Paste the public page URL where the problem appears.
+      placeholder: https://kantojdeespero.com/...
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and device
+      description: Include browser, version if known, and device or operating system.
+      placeholder: Firefox 128 on Windows 11
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Add a screenshot or console message if it helps. Remove personal information first.
+      placeholder: Drag a screenshot here, or paste a relevant error message.
+    validations:
+      required: false

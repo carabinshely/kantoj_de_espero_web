@@ -4,6 +4,18 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-07-11
+
+### Added
+- Added a structured public bug-report issue template.
+
+### Changed
+- Made the temporary preview lifecycle and readiness checks reliable for local browser verification.
+- Improved the consent settings link touch target for keyboard and touch users.
+
+### Fixed
+- Preserved footer navigation to the analytics settings section when consent controls are active.
+
 ## [0.1.6] - 2026-07-07
 
 ### Added

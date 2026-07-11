@@ -4,6 +4,12 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-07-11
+
+### Fixed
+- Restored the compact light/dark reading control with the rounded, outlined treatment from the approved design prototype.
+- Kept the text-led hero and route-preserving language navigation introduced in v0.1.9.
+
 ## [0.1.9] - 2026-07-11
 
 ### Changed

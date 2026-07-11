@@ -8,7 +8,7 @@ function luminance(hex) {
 }
 function contrast(a, b) { const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x); return (light + 0.05) / (dark + 0.05); }
 const css = readFileSync('src/styles/global.css', 'utf8');
-for (const required of ['--button-accent-ink:#172126', 'color:var(--button-accent-ink)', 'data-mood="start"', 'data-mood="hope"', 'data-mood="love"', 'data-mood="night"', 'data-mood="memory"']) {
+for (const required of ['--button-accent-ink:#172126', '--coral-text:#B94336', '--green-text:#2F725F', '--muted-text:#656A66', 'color:var(--button-accent-ink)', 'nav a[aria-current="page"] { color:var(--coral-text)', '.eyebrow { color:var(--green-text)', '.meta,.muted { color:var(--muted-text)', ':root[data-theme="dark"] .button:hover { background:var(--surface); border-color:var(--sky); }', 'data-mood="start"', 'data-mood="hope"', 'data-mood="love"', 'data-mood="night"', 'data-mood="memory"']) {
   if (!css.includes(required)) fail({ check: 'verify:styles', problem: `Missing editorial style contract: ${required}`, cause: 'Primary-control contrast or playlist treatment drifted.', path: 'src/styles/global.css', fix: 'Restore approved button foreground and all five stable playlist mood treatments.' });
 }
 const darkContract = css.slice(css.indexOf('/* Dark reading mode:'));
@@ -16,8 +16,32 @@ if (!darkContract || /gradient/i.test(darkContract)) fail({ check: 'verify:style
 for (const required of ['.hero::after { background:transparent;', 'data-mood="start"', 'data-mood="hope"', 'data-mood="love"', 'data-mood="night"', 'data-mood="memory"']) {
   if (!darkContract.includes(required)) fail({ check: 'verify:styles', problem: `Dark reading mode is missing solid treatment: ${required}`, cause: 'Every editorial mood needs a distinct gradient-free dark-mode treatment.', path: 'src/styles/global.css', fix: 'Restore all five dark playlist treatments and the solid hero geometry override.' });
 }
-for (const [mode, background] of [['light', '#E85D4A'], ['dark', '#F48A79']]) {
-  const ratio = contrast(background, '#172126');
-  if (ratio < 4.5) fail({ check: 'verify:styles', problem: `Primary button contrast in ${mode} mode is ${ratio.toFixed(2)}:1.`, cause: 'WCAG AA requires 4.5:1 for normal text.', path: 'src/styles/global.css', fix: 'Use an approved foreground/background pair meeting 4.5:1 in both modes.' });
+const themes = {
+  light: { ink: '#172126', paper: '#F4EFE6', surface: '#FFFAF2', coral: '#E85D4A', buttonAccentInk: '#172126', coralText: '#B94336', greenText: '#2F725F', sky: '#76B8C4', mutedText: '#656A66' },
+  dark: { ink: '#F4EFE6', paper: '#172126', surface: '#223037', coral: '#F48A79', buttonAccentInk: '#172126', coralText: '#F48A79', greenText: '#78B9A8', sky: '#9BD3DD', mutedText: '#C4C9C2' },
+};
+const contrastPairs = [
+  ['body text', 'ink', 'paper'],
+  ['surface reading text', 'ink', 'surface'],
+  ['primary accent control', 'buttonAccentInk', 'coral'],
+  ['default control', 'ink', 'paper'],
+  ['default control hover', 'ink', 'buttonHoverBackground'],
+  ['skip-link control', 'paper', 'ink'],
+  ['active navigation', 'coralText', 'paper'],
+  ['link/control hover', 'greenText', 'paper'],
+  ['eyebrow text', 'greenText', 'paper'],
+  ['eyebrow text on surface', 'greenText', 'surface'],
+  ['muted metadata', 'mutedText', 'paper'],
+  ['muted metadata on surface', 'mutedText', 'surface'],
+  ['footer/theme-toggle control', 'mutedText', 'paper'],
+];
+const results = [];
+for (const [mode, tokens] of Object.entries(themes)) {
+  tokens.buttonHoverBackground = mode === 'dark' ? tokens.surface : tokens.sky;
+  for (const [label, foreground, background] of contrastPairs) {
+    const ratio = contrast(tokens[foreground], tokens[background]);
+    if (ratio < 4.5) fail({ check: 'verify:styles', problem: `${label} contrast in ${mode} mode is ${ratio.toFixed(2)}:1.`, cause: 'WCAG AA requires 4.5:1 for normal text and controls.', path: 'src/styles/global.css', fix: 'Use the dedicated text token or a background pair meeting 4.5:1.' });
+    results.push(`${mode} ${label} ${ratio.toFixed(2)}:1`);
+  }
 }
-pass('verify:styles', 'primary button contrast meets WCAG AA in light/dark modes; five stable, gradient-free dark playlist treatments present');
+pass('verify:styles', `all small text/control contrast pairs meet WCAG AA (${results.join('; ')}); five stable, gradient-free dark playlist treatments present`);

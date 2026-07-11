@@ -4,6 +4,19 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-07-11
+
+### Added
+- Added a bilingual editorial home, song catalog, playlist index, playlist detail pages, lyric pages, and supporting project pages for curious listeners new to Esperanto.
+- Added self-hosted Instrument Serif, DM Sans, and IBM Plex Mono typography with warm light and dark reading modes.
+
+### Changed
+- Reworked navigation, playlist discovery, song reading, licensing, privacy, analytics consent, and the custom 404 page around the approved editorial music-journal design system.
+- Added responsive mobile layouts, accessible contrast checks, lyric integrity fixtures, route/SEO/privacy verification, and safe temporary-preview checks.
+
+### Fixed
+- Corrected bilingual route generation, rendered lyric character escaping, dark-mode reading surfaces, control contrast, and editorial title-link touch targets.
+
 ## [0.1.7] - 2026-07-11
 
 ### Added

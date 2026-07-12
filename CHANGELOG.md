@@ -4,6 +4,9 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+### Fixed
+- Corrected the standalone public-repository quickstart so it does not call the private data exporter.
+
 ## [0.1.10] - 2026-07-11
 
 ### Fixed

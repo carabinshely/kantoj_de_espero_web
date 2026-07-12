@@ -4,6 +4,19 @@ All notable changes to the Kantoj de Espero public website are documented here.
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-07-12
+
+### Added
+- Added compact bilingual song listening controls plus a direct Spotify embed for the currently Spotify-only Start Here playlist, with provider validation, analytics hooks, and keyboard-accessible tabs.
+- Added contract checks and a real Playwright preview harness for gesture-gated playback, lifecycle states, provider switching, focus, and mobile overflow.
+
+### Changed
+- Kept song-player status and external fallback links through loading, loaded, error, and provider-switch states while removing unnecessary playlist service-selection and load controls.
+
+### Fixed
+- Restored the approved 44px touch targets for the reading theme control and bilingual playlist language switch.
+
+
 ### Fixed
 - Corrected the standalone public-repository quickstart so it does not call the private data exporter.
 

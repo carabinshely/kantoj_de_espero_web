@@ -72,6 +72,8 @@ for (const eventName of allowedEvents) if (!dataEventValues.has(eventName)) fail
 const allowedInstrumentationFiles = new Set([
   'src/components/AnalyticsConsent.astro',
   'src/components/ListenLinks.astro',
+  'src/components/ListenMenu.astro',
+  'src/components/ListeningSurface.astro',
   'src/pages/en/index.astro',
   'src/pages/eo/index.astro'
 ]);

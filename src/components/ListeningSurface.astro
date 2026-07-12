@@ -30,7 +30,7 @@ const selected = providers.includes('spotify') ? 'spotify' : providers[0];
     const load = surface.querySelector<HTMLButtonElement>('[data-listening-load]');
     const copy = surface.querySelector<HTMLTemplateElement>('[data-listening-copy]')!;
     let active = buttons.find((button) => button.getAttribute('aria-selected') === 'true')?.dataset.listeningProvider;
-    const setState = (state: string, text: string) => { surface.dataset.listeningState = state; message.textContent = text; };
+    const setState = (state: string, text: string) => { surface.dataset.listeningState = state; message.textContent = text; if (!panel.contains(message)) panel.prepend(message); };
     const clearPlayer = () => panel.querySelector('iframe')?.remove();
     const select = (provider: string) => {
       active = provider;

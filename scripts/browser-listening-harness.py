@@ -139,7 +139,7 @@ def main() -> None:
     if not Path("dist/index.html").exists():
         fail("Missing dist/index.html. Run npm run build before npm run test:browser-listening.")
     process = subprocess.Popen(
-        ["npm", "run", "preview", "--", "--host", HOST, "--port", str(PORT), "--strictPort"],
+        [str(Path("node_modules/.bin/astro")), "preview", "--host", HOST, "--port", str(PORT), "--strictPort"],
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True,
     )
     try:

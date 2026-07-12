@@ -110,7 +110,7 @@ def run_browser() -> None:
             mobile = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
             mobile_page = mobile.new_page()
             mobile_page.set_default_timeout(3_000)
-            page.goto(f"{BASE}{SONG}", wait_until="domcontentloaded")
+            mobile_page.goto(f"{BASE}{SONG}", wait_until="domcontentloaded")
             overflow = mobile_page.evaluate("document.documentElement.scrollWidth > window.innerWidth")
             if overflow:
                 raise AssertionError("Listening surface causes horizontal overflow at the mobile viewport.")

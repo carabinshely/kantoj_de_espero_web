@@ -1,13 +1,13 @@
 ---
 import { pageHref } from '@/lib/seo';
-import { localizedPlaylist, playlistPath } from '@/lib/site';
+import { localizedPlaylist, playlistMood, playlistPath } from '@/lib/site';
 import type { Lang, PublicPlaylist } from '@/lib/types';
 interface Props { playlist: PublicPlaylist; lang: Lang }
 const { playlist, lang } = Astro.props;
 const copy = localizedPlaylist(playlist, lang);
+const gloss = lang === 'en' ? playlist.title_eo : playlist.title_en;
 ---
-<article class="card playlist-card">
-  <h3><a href={pageHref(playlistPath(playlist, lang))}>{copy.title}</a></h3>
-  <p>{copy.intro}</p>
-  <p class="meta">{playlist.song_ids.length} songs</p>
+<article class="playlist-entry" data-mood={playlistMood(playlist)}>
+  <div><p class="eyebrow">Playlist / {playlist.song_ids.length} tracks</p><h3><a href={pageHref(playlistPath(playlist, lang))}>{copy.title}</a></h3><p class="gloss">{gloss}</p><p>{copy.intro}</p></div>
+  <div class="playlist-count"><a class="button" href={pageHref(playlistPath(playlist, lang))}>{copy.cta}</a></div>
 </article>

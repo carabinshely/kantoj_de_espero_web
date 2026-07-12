@@ -77,3 +77,14 @@ export function realLinks(links: StreamingLinks) {
 export function platformLabel(platform: string) {
   return ({ spotify: 'Spotify', youtube_music: 'YouTube Music', apple_music: 'Apple Music', deezer: 'Deezer', amazon_music: 'Amazon Music', hyperfollow: 'All platforms' } as Record<string, string>)[platform] ?? platform;
 }
+
+export function playlistMood(playlist: PublicPlaylist) {
+  const treatments: Record<string, 'start' | 'hope' | 'love' | 'night' | 'memory'> = {
+    'start-here-modern-esperanto-pop-rock': 'start',
+    'hope-light-and-renewal': 'hope',
+    'love-loss-and-longing': 'love',
+    'night-city-and-inner-shadows': 'night',
+    'memory-music-and-strange-stories': 'memory'
+  };
+  return treatments[playlist.id] ?? 'start';
+}

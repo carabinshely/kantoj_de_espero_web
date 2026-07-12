@@ -1,20 +1,6 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import LanguageSwitch from '@/components/LanguageSwitch.astro';
-import SongCard from '@/components/SongCard.astro';
-import ListenLinks from '@/components/ListenLinks.astro';
-import { playlists, localizedPlaylist, playlistPath, songsForPlaylist, songPath } from '@/lib/site';
-import { playlistJsonLd } from '@/lib/seo';
-
-export function getStaticPaths() {
-  return playlists.map((playlist) => ({ params: { slug: playlist.slug_eo }, props: { playlist } }));
-}
-const { playlist } = Astro.props;
-const copy = localizedPlaylist(playlist, 'eo');
-const playlistSongs = songsForPlaylist(playlist);
+import BaseLayout from '@/layouts/BaseLayout.astro'; import LanguageSwitch from '@/components/LanguageSwitch.astro'; import SongCard from '@/components/SongCard.astro'; import ListenLinks from '@/components/ListenLinks.astro'; import { playlists, localizedPlaylist, playlistPath, songsForPlaylist, songPath, playlistMood } from '@/lib/site'; import { playlistJsonLd } from '@/lib/seo';
+export function getStaticPaths() { return playlists.map((playlist) => ({ params: { slug: playlist.slug_eo }, props: { playlist } })); }
+const { playlist } = Astro.props; const copy = localizedPlaylist(playlist, 'eo'); const playlistSongs = songsForPlaylist(playlist);
 ---
-<BaseLayout title={copy.seoTitle} description={copy.metaDescription} path={playlistPath(playlist, 'eo')} alternatePath={playlistPath(playlist, 'en')} lang="eo" jsonLd={playlistJsonLd(copy.title, copy.metaDescription, playlistPath(playlist, 'eo'), playlistSongs.map((song) => songPath(song, 'eo')))}>
-  <section class="hero"><p class="eyebrow">Ludlisto</p><h1>{copy.title}</h1><p class="lede">{copy.intro}</p><ListenLinks links={playlist.streaming_links} label={`Aŭskulti ${copy.title}`} entityType="playlist" entityId={playlist.id} lang="eo" /></section>
-  <LanguageSwitch href={playlistPath(playlist, 'en')} label="Read this playlist in English" />
-  <section><h2>Kantoj laŭ ordo</h2><div class="grid">{playlistSongs.map((song) => <SongCard song={song} lang="eo" />)}</div></section>
-</BaseLayout>
+<BaseLayout title={copy.seoTitle} description={copy.metaDescription} path={playlistPath(playlist, 'eo')} alternatePath={playlistPath(playlist, 'en')} lang="eo" jsonLd={playlistJsonLd(copy.title, copy.metaDescription, playlistPath(playlist, 'eo'), playlistSongs.map((song) => songPath(song, 'eo')))}><section class="hero"><p class="eyebrow">Ludlisto / {playlistMood(playlist)}</p><h1>{copy.title}</h1><p class="lede">{copy.intro}</p><ListenLinks links={playlist.streaming_links} label={`Aŭskulti ${copy.title}`} entityType="playlist" entityId={playlist.id} lang="eo" /></section><LanguageSwitch href={playlistPath(playlist, 'en')} label="Read this playlist in English" /><section class="editorial-section"><div class="section-heading"><h2>Kantoj, laŭ ordo</h2><p class="lede">Komencu ĉi tie, poste sekvu la sinsekvon al kantopaĝo antaŭ ekstera aŭskultado.</p></div><div class="catalog-list">{playlistSongs.map((song,index) => <SongCard song={song} lang="eo" index={index+1} />)}</div></section></BaseLayout>

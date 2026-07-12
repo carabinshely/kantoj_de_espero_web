@@ -1,38 +1,6 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import LanguageSwitch from '@/components/LanguageSwitch.astro';
-import TagChips from '@/components/TagChips.astro';
-import ListenLinks from '@/components/ListenLinks.astro';
-import PlaylistCard from '@/components/PlaylistCard.astro';
-import { songs, localizedSong, playlistsForSong, songPath } from '@/lib/site';
-import { recordingJsonLd } from '@/lib/seo';
-
-export function getStaticPaths() {
-  return songs.map((song) => ({ params: { slug: song.slug }, props: { song } }));
-}
-const { song } = Astro.props;
-const copy = localizedSong(song, 'en');
-const linkedPlaylists = playlistsForSong(song);
+import BaseLayout from '@/layouts/BaseLayout.astro'; import LanguageSwitch from '@/components/LanguageSwitch.astro'; import TagChips from '@/components/TagChips.astro'; import ListenLinks from '@/components/ListenLinks.astro'; import PlaylistCard from '@/components/PlaylistCard.astro'; import { songs, localizedSong, playlistsForSong, songPath } from '@/lib/site'; import { recordingJsonLd } from '@/lib/seo';
+export function getStaticPaths() { return songs.map((song) => ({ params: { slug: song.slug }, props: { song } })); }
+const { song } = Astro.props; const copy = localizedSong(song, 'en'); const linkedPlaylists = playlistsForSong(song);
 ---
-<BaseLayout title={copy.title} description={copy.description} path={songPath(song, 'en')} alternatePath={songPath(song, 'eo')} lang="en" jsonLd={recordingJsonLd(song, songPath(song, 'en'))}>
-  <article class="two-col">
-    <div>
-      <p class="eyebrow">Song</p>
-      <h1>{copy.title}</h1>
-      <p class="lede">{copy.hook}</p>
-      <ListenLinks links={song.streaming_links} label={`Listen to ${copy.title}`} entityType="song" entityId={song.id} lang="en" />
-      <LanguageSwitch href={songPath(song, 'eo')} label="Legu ĉi tiun kanton Esperante" />
-      <h2>Lyrics</h2>
-      <pre class="lyrics">{song.lyrics_eo}</pre>
-    </div>
-    <aside class="panel">
-      <h2>Song notes</h2>
-      <p>{copy.description}</p>
-      <TagChips values={song.public_genres} label="Genres" />
-      <TagChips values={song.public_moods} label="Moods" />
-      <TagChips values={song.public_topics} label="Topics" />
-      {song.license_available && <p class="meta">Licensing may be available for this song.</p>}
-    </aside>
-  </article>
-  <section><h2>Appears in playlists</h2><div class="grid">{linkedPlaylists.map((playlist) => <PlaylistCard playlist={playlist} lang="en" />)}</div></section>
-</BaseLayout>
+<BaseLayout title={copy.title} description={copy.description} path={songPath(song, 'en')} alternatePath={songPath(song, 'eo')} lang="en" jsonLd={recordingJsonLd(song, songPath(song, 'en'))}><article class="two-col"><div><p class="eyebrow">Song / Esperanto lyrics</p><h1>{copy.title}</h1><p class="lede">{copy.hook}</p><ListenLinks links={song.streaming_links} label={`Listen to ${copy.title}`} entityType="song" entityId={song.id} lang="en" /><LanguageSwitch href={songPath(song, 'eo')} label="Legu ĉi tiun kanton Esperante" /><section class="editorial-section"><p class="eyebrow">Complete lyrics</p><h2>The words</h2><pre class="lyrics">{song.lyrics_eo}</pre></section></div><aside class="panel"><p class="eyebrow">Song notes</p><h2>Context</h2><p>{copy.description}</p><TagChips values={song.public_genres} label="Genres" /><TagChips values={song.public_moods} label="Moods" /><TagChips values={song.public_topics} label="Topics" />{song.license_available && <p class="meta">Licensing may be available for this song.</p>}</aside></article><section class="editorial-section"><div class="section-heading"><h2>Appears in these paths</h2><p class="lede">Continue with the playlist context that brought this song into view.</p></div><div class="playlist-stack">{linkedPlaylists.map((playlist) => <PlaylistCard playlist={playlist} lang="en" />)}</div></section></BaseLayout>

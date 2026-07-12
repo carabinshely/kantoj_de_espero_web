@@ -61,7 +61,7 @@ function checkLaunchCopy() {
     assertNotIncludes(route, 'blokos publikan publikigon', `${route} still says launch verification will block public release for stale facts.`, 'Replace stale launch-blocker copy with current approved public facts.');
   }
   const css = existsSync('dist/_astro') ? readFileSync('src/styles/global.css', 'utf8') : '';
-  if (!css.includes('min-height: 44px') || !css.includes('.contact-link') || !css.includes('overflow-wrap: anywhere')) {
+  if (!css.includes('min-height:44px') || !css.includes('.contact-link') || !css.includes('overflow-wrap:anywhere')) {
     fail({ check: 'verify:routes', problem: 'Responsive contact/action CSS guard is missing.', cause: 'Design acceptance requires keyboard/touch-friendly actions and wrapping email contact links.', path: 'src/styles/global.css', fix: 'Keep .button at least 44px high and .contact-link wrapping long email addresses.' });
   }
 }
@@ -69,7 +69,7 @@ function checkLaunchCopy() {
 function requireRoute(route) {
   if (!existsSync(routePath(route))) fail({ check: 'verify:routes', problem: `Missing generated route ${route}`, cause: 'Astro did not emit an expected MVP route.', path: routePath(route), fix: 'Check page file/getStaticPaths and rerun npm run build.' });
 }
-const routes = ['/', '/en/', '/eo/', '/en/songs/', '/eo/kantoj/', '/en/playlists/', '/eo/ludlistoj/', '/en/about/', '/eo/pri-ni/', '/en/licensing/', '/eo/licencado/'];
+const routes = ['/', '/en/', '/eo/', '/en/songs/', '/eo/kantoj/', '/en/playlists/', '/eo/ludlistoj/', '/en/about/', '/eo/pri-ni/', '/en/licensing/', '/eo/licencado/', '/en/privacy/', '/eo/privateco/'];
 for (const route of routes) requireRoute(route);
 for (const song of catalog.songs) { requireRoute(`/en/songs/${song.slug}/`); requireRoute(`/eo/kantoj/${song.slug}/`); }
 for (const playlist of catalog.playlists) { requireRoute(`/en/playlists/${playlist.slug_en}/`); requireRoute(`/eo/ludlistoj/${playlist.slug_eo}/`); }
@@ -84,6 +84,10 @@ for (const route of allRoutes) { checkInternalHrefs(route); checkLocalizedShell(
 for (const route of routes) {
   const html = readFileSync(routePath(route), 'utf8');
   if (!html.includes('<main')) fail({ check: 'verify:routes', problem: `Route ${route} has no main landmark.`, cause: 'Base layout may not have rendered.', path: routePath(route), fix: 'Render routes through BaseLayout.' });
+}
+for (const route of ['/en/privacy/', '/eo/privateco/']) {
+  assertIncludes(route, 'analytics-settings', `${route} does not render the privacy settings anchor.`, 'Keep consent settings reachable on both localized privacy routes.');
+  assertIncludes(route, 'data-consent-manage', `${route} does not render a consent settings control.`, 'Preserve consent controls during visual changes.');
 }
 checkLaunchCopy();
 checkHomepageStalePublicCopy();

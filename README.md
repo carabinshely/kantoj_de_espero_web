@@ -12,9 +12,13 @@ Prerequisites:
 
 ```bash
 npm install
-npm run export:data
 npm run start:local
 ```
+
+The public repository includes the committed public data projection, so this
+standalone quickstart does not require access to the private normalized-data
+workspace. Run `npm run export:data` only from the private workspace when
+regenerating that projection.
 
 
 ### Browser QA from WSL or `/mnt/c`

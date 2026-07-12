@@ -24,7 +24,8 @@
     "verify:analytics": "node scripts/verify-analytics.mjs",
     "verify:lyrics": "node scripts/verify-lyrics.mjs",
     "verify:styles": "node scripts/verify-styles.mjs",
-    "verify:listening": "node scripts/verify-listening.mjs"
+    "verify:listening": "node scripts/verify-listening.mjs",
+    "test:browser-listening": "node scripts/browser-listening-harness.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

@@ -77,9 +77,13 @@ export function providerLink(links: StreamingLinks, provider: ListeningProvider,
   if (typeof value !== 'string') return null;
   try {
     const url = new URL(value);
-    if (url.protocol !== 'https:') return null;
-    if (provider === 'spotify') return url.hostname === 'open.spotify.com' && url.pathname.startsWith(`/${entityType === 'song' ? 'track' : 'playlist'}/`) ? url.toString() : null;
-    return (url.hostname === 'music.apple.com' || url.hostname.endsWith('.music.apple.com')) && url.pathname.includes(`/${entityType === 'song' ? 'song' : 'playlist'}/`) ? url.toString() : null;
+    if (url.protocol !== 'https:' || url.username || url.password || url.port || url.hash) return null;
+    const spotifyPath = entityType === 'song' ? /^\/track\/[A-Za-z0-9]{22}\/?$/ : /^\/playlist\/[A-Za-z0-9]{22}\/?$/;
+    const applePath = entityType === 'song'
+      ? /^\/[a-z]{2}\/song\/[^/]+\/[0-9]+\/?$/i
+      : /^\/[a-z]{2}\/playlist\/[^/]+\/[A-Za-z0-9.-]+\/?$/i;
+    if (provider === 'spotify') return url.hostname === 'open.spotify.com' && spotifyPath.test(url.pathname) ? url.toString() : null;
+    return url.hostname === 'music.apple.com' && applePath.test(url.pathname) ? url.toString() : null;
   } catch { return null; }
 }
 

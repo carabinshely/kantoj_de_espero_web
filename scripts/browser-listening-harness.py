@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Real Playwright QA for the lazy listening surface using Astro preview."""
+"""Real Playwright QA for song listening controls and direct Spotify playlists."""
 from __future__ import annotations
 
 import http.client
@@ -99,16 +99,13 @@ def run_browser() -> None:
 
             page.goto(f"{BASE}{PLAYLIST}", wait_until="domcontentloaded")
             playlist_surface = page.locator('[data-listening-entity-type="playlist"]')
-            playlist_load = page.locator("[data-listening-load]")
-            provider_requests_before_load = len(provider_requests)
-            if playlist_surface.count() != 1 or not playlist_load.is_visible() or page.locator("[data-listening-panel] iframe").count() != 0:
-                raise AssertionError("Playlist explicit-load surface is missing or created an iframe before Load player.")
-            if len(provider_requests) != provider_requests_before_load:
-                raise AssertionError("A playlist provider request occurred before Load player.")
-            playlist_load.click()
-            wait_for_count(page.locator("[data-listening-panel] iframe"), 1)
-            if not page.locator("[data-listening-message]").is_visible() or not page.locator("[data-listening-fallback]").is_visible():
-                raise AssertionError("Playlist loading did not retain visible status and external fallback.")
+            playlist_embed = page.locator("[data-listening-spotify-embed]")
+            if playlist_surface.count() != 1 or playlist_embed.count() != 1 or page.locator("[data-listening-load]").count() != 0:
+                raise AssertionError("Playlist does not render one direct Spotify embed without load controls.")
+            if playlist_embed.get_attribute("src") != "https://open.spotify.com/embed/playlist/5rbdelkCrs26Tjc8y2gqWD":
+                raise AssertionError("Playlist direct embed has an unexpected Spotify URL.")
+            if page.locator("[data-listening-provider]").count() != 0 or page.locator("[data-listening-fallback]").count() != 0:
+                raise AssertionError("Playlist still renders provider-selection or fallback UI despite having only Spotify.")
             menu_summary = page.locator("[data-listening-menu] summary").first
             menu_summary.focus()
             page.keyboard.press("Enter")
@@ -146,7 +143,7 @@ def main() -> None:
         wait_for_preview(process)
         print("[test:browser-listening] Astro preview ready", flush=True)
         run_browser()
-        print("[test:browser-listening] PASS — real Playwright preview test verified gesture-gated song and playlist requests, iframe cleanup, keyboard controls, fallback/status visibility, and mobile focus/no-overflow.")
+        print("[test:browser-listening] PASS — real Playwright preview test verified gesture-gated song playback, direct Spotify playlist embedding, iframe cleanup, keyboard controls, and mobile focus/no-overflow.")
     except AssertionError as error:
         fail(str(error))
     finally:

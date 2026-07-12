@@ -2,32 +2,36 @@
 import ListenLinks from '@/components/ListenLinks.astro';
 import { availableProviders, platformLabel, providerLink } from '@/lib/site';
 import type { Lang, ListeningEntityType, StreamingLinks } from '@/lib/types';
-interface Props { links: StreamingLinks; entityType: ListeningEntityType; entityId: string; lang: Lang; explicitLoad?: boolean; }
-const { links, entityType, entityId, lang, explicitLoad = false } = Astro.props;
+interface Props { links: StreamingLinks; entityType: ListeningEntityType; entityId: string; lang: Lang; }
+const { links, entityType, entityId, lang } = Astro.props;
 const providers = availableProviders(links, entityType);
 const copy = lang === 'eo'
-  ? { choose: 'Elektu servon por aŭskulti', load: 'Ŝargi ludilon', external: 'Aŭskultu eksterlande', spotify: 'Ŝargi Spotify-ludilon', loading: 'Ŝargante Spotify-ludilon…', loaded: 'Spotify-ludilo estas preta.', failed: 'La Spotify-ludilo ne ŝargiĝis. Uzu la eksteran ligilon.', apple: 'Apple Music disponeblas kiel ekstera ligilo.' }
-  : { choose: 'Choose a service to listen', load: 'Load player', external: 'Listen externally', spotify: 'Load Spotify player', loading: 'Loading Spotify player…', loaded: 'Spotify player is ready.', failed: 'The Spotify player did not load. Use the external link.', apple: 'Apple Music is available as an external link.' };
+  ? { choose: 'Elektu servon por aŭskulti', external: 'Aŭskultu eksterlande', spotify: 'Ŝargi Spotify-ludilon', loading: 'Ŝargante Spotify-ludilon…', loaded: 'Spotify-ludilo estas preta.', failed: 'La Spotify-ludilo ne ŝargiĝis. Uzu la eksteran ligilon.', apple: 'Apple Music disponeblas kiel ekstera ligilo.' }
+  : { choose: 'Choose a service to listen', external: 'Listen externally', spotify: 'Load Spotify player', loading: 'Loading Spotify player…', loaded: 'Spotify player is ready.', failed: 'The Spotify player did not load. Use the external link.', apple: 'Apple Music is available as an external link.' };
 const selected = providers.includes('spotify') ? 'spotify' : providers[0];
+const spotifyUrl = providerLink(links, 'spotify', entityType);
+const directSpotifyPlaylist = entityType === 'playlist' && providers.length === 1 && selected === 'spotify' && spotifyUrl;
+const spotifyEmbedUrl = directSpotifyPlaylist && `https://open.spotify.com/embed/${new URL(spotifyUrl).pathname.split('/').filter(Boolean).slice(-2).join('/')}`;
 ---
-{providers.length > 0 && <section class="listening-surface" data-listening-surface data-listening-entity-id={entityId} data-listening-entity-type={entityType} data-listening-mode={explicitLoad ? 'explicit' : 'song'} data-listening-state={explicitLoad ? 'idle' : 'ready'}>
+{directSpotifyPlaylist && <section class="listening-surface listening-surface--playlist" data-listening-surface data-listening-entity-id={entityId} data-listening-entity-type={entityType} data-listening-mode="spotify-embed" data-listening-state="loaded">
+  <iframe data-listening-spotify-embed title="Spotify playlist player" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" src={spotifyEmbedUrl}></iframe>
+</section>}
+{!directSpotifyPlaylist && providers.length > 0 && <section class="listening-surface" data-listening-surface data-listening-entity-id={entityId} data-listening-entity-type={entityType} data-listening-mode="song" data-listening-state="ready">
   <p class="eyebrow">{copy.choose}</p>
   <div class="provider-tabs" role="tablist" aria-label={copy.choose}>
     {providers.map((provider) => <button class="button" type="button" role="tab" aria-selected={provider === selected ? 'true' : 'false'} aria-controls={`${entityId}-${provider}-panel`} id={`${entityId}-${provider}-tab`} data-listening-provider={provider} data-listening-url={providerLink(links, provider, entityType)!} data-analytics-event="listen_click" data-analytics-platform={provider} data-analytics-entity-type={entityType} data-analytics-entity-id={entityId} data-analytics-lang={lang}>{platformLabel(provider)}</button>)}
   </div>
-  {explicitLoad && <button class="button accent" type="button" data-listening-load data-analytics-event="listen_click" data-analytics-platform={selected} data-analytics-entity-type={entityType} data-analytics-entity-id={entityId} data-analytics-lang={lang}>{copy.load}</button>}
   <div class="listening-panel" role="tabpanel" id={`${entityId}-${selected}-panel`} aria-labelledby={`${entityId}-${selected}-tab`} data-listening-panel aria-live="polite">
-    <p data-listening-message>{explicitLoad ? copy.choose : copy.spotify}</p>
+    <p data-listening-message>{copy.spotify}</p>
   </div>
   <div class="listening-fallback" data-listening-fallback><span>{copy.external}</span><ListenLinks links={links} label={copy.external} entityType={entityType} entityId={entityId} lang={lang} /></div>
   <template data-listening-copy data-spotify-message={copy.spotify} data-loading-message={copy.loading} data-loaded-message={copy.loaded} data-failed-message={copy.failed} data-apple-message={copy.apple}></template>
 </section>}
 <script>
-  for (const surface of document.querySelectorAll<HTMLElement>('[data-listening-surface]')) {
+  for (const surface of document.querySelectorAll<HTMLElement>('[data-listening-surface][data-listening-mode="song"]')) {
     const buttons = Array.from(surface.querySelectorAll<HTMLButtonElement>('[data-listening-provider]'));
     const panel = surface.querySelector<HTMLElement>('[data-listening-panel]')!;
     const message = surface.querySelector<HTMLElement>('[data-listening-message]')!;
-    const load = surface.querySelector<HTMLButtonElement>('[data-listening-load]');
     const copy = surface.querySelector<HTMLTemplateElement>('[data-listening-copy]')!;
     let active = buttons.find((button) => button.getAttribute('aria-selected') === 'true')?.dataset.listeningProvider;
     const setState = (state: string, text: string) => { surface.dataset.listeningState = state; message.textContent = text; if (!panel.contains(message)) panel.prepend(message); };
@@ -38,7 +42,6 @@ const selected = providers.includes('spotify') ? 'spotify' : providers[0];
       const activeButton = buttons.find((button) => button.dataset.listeningProvider === provider)!;
       panel.id = activeButton.getAttribute('aria-controls')!;
       panel.setAttribute('aria-labelledby', activeButton.id);
-      if (load) load.dataset.analyticsPlatform = provider;
     };
     const render = (provider: string, allowed: boolean) => {
       select(provider); clearPlayer();
@@ -54,7 +57,7 @@ const selected = providers.includes('spotify') ? 'spotify' : providers[0];
       iframe.src = `https://open.spotify.com/embed/${match.slice(-2).join('/')}`;
       panel.replaceChildren(message, iframe); setState('loading', copy.dataset.loadingMessage!);
     };
-    const activate = (provider: string) => render(provider, surface.dataset.listeningMode === 'song');
+    const activate = (provider: string) => render(provider, true);
     buttons.forEach((button, index) => {
       button.addEventListener('click', () => activate(button.dataset.listeningProvider!));
       button.addEventListener('keydown', (event) => {
@@ -65,6 +68,5 @@ const selected = providers.includes('spotify') ? 'spotify' : providers[0];
         buttons[next].focus(); buttons[next].click();
       });
     });
-    load?.addEventListener('click', () => { if (active) render(active, true); });
   }
 </script>

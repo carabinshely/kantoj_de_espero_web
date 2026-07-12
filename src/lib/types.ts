@@ -1,5 +1,7 @@
 export type Lang = 'en' | 'eo';
 export type StreamingPlatform = 'spotify' | 'youtube_music' | 'apple_music' | 'deezer' | 'amazon_music' | 'hyperfollow';
+export type ListeningProvider = 'spotify' | 'apple_music';
+export type ListeningEntityType = 'song' | 'playlist';
 
 export type StreamingLinks = Record<StreamingPlatform, string | null>;
 

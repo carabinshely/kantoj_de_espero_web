@@ -1,0 +1,21 @@
+---
+import { availableProviders, platformLabel, providerLink } from '@/lib/site';
+import type { Lang, ListeningEntityType, StreamingLinks } from '@/lib/types';
+interface Props { links: StreamingLinks; entityType: ListeningEntityType; entityId: string; lang: Lang; }
+const { links, entityType, entityId, lang } = Astro.props;
+const providers = availableProviders(links, entityType);
+const label = lang === 'eo' ? 'Aŭskulti' : 'Listen';
+---
+{providers.length > 0 && <details class="listen-menu" data-listening-menu>
+  <summary class="button" aria-label={label}>{label}</summary>
+  <div class="listen-menu-panel" role="menu" aria-label={label}>
+    {providers.map((provider) => <a role="menuitem" href={providerLink(links, provider, entityType)!} target="_blank" rel="noopener noreferrer" data-analytics-event="listen_click" data-analytics-platform={provider} data-analytics-entity-type={entityType} data-analytics-entity-id={entityId} data-analytics-lang={lang}>{platformLabel(provider)}</a>)}
+  </div>
+</details>}
+<script>
+  document.querySelectorAll('[data-listening-menu]').forEach((menu) => {
+    menu.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') { menu.removeAttribute('open'); (menu.querySelector('summary') as HTMLElement)?.focus(); }
+    });
+  });
+</script>

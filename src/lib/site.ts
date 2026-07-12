@@ -1,6 +1,6 @@
 import catalog from '@/data/public-catalog.json';
 import facts from '@/data/site-facts.json';
-import type { Lang, PublicPlaylist, PublicSong, SiteFacts, StreamingLinks } from './types';
+import type { Lang, ListeningEntityType, ListeningProvider, PublicPlaylist, PublicSong, SiteFacts, StreamingLinks } from './types';
 
 export const songs = catalog.songs as PublicSong[];
 export const playlists = catalog.playlists as PublicPlaylist[];
@@ -68,6 +68,23 @@ function isHttpUrl(value: unknown): value is string {
   } catch {
     return false;
   }
+}
+
+export const listeningProviders: ListeningProvider[] = ['spotify', 'apple_music'];
+
+export function providerLink(links: StreamingLinks, provider: ListeningProvider, entityType: ListeningEntityType): string | null {
+  const value = links[provider];
+  if (typeof value !== 'string') return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'https:') return null;
+    if (provider === 'spotify') return url.hostname === 'open.spotify.com' && url.pathname.startsWith(`/${entityType === 'song' ? 'track' : 'playlist'}/`) ? url.toString() : null;
+    return (url.hostname === 'music.apple.com' || url.hostname.endsWith('.music.apple.com')) && url.pathname.includes(`/${entityType === 'song' ? 'song' : 'playlist'}/`) ? url.toString() : null;
+  } catch { return null; }
+}
+
+export function availableProviders(links: StreamingLinks, entityType: ListeningEntityType) {
+  return listeningProviders.filter((provider) => providerLink(links, provider, entityType));
 }
 
 export function realLinks(links: StreamingLinks) {

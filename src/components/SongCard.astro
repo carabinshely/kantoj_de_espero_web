@@ -1,6 +1,7 @@
 ---
 import { pageHref } from '@/lib/seo';
 import { localizedSong, songPath } from '@/lib/site';
+import ListenMenu from '@/components/ListenMenu.astro';
 import type { Lang, PublicSong } from '@/lib/types';
 interface Props { song: PublicSong; lang: Lang; index?: number }
 const { song, lang, index } = Astro.props;
@@ -10,5 +11,5 @@ const gloss = lang === 'en' ? song.title_eo : song.title_en;
 <article class="track-entry">
   <span class="track-number">{String(index ?? 0).padStart(2, '0')}</span>
   <div><h3><a href={pageHref(songPath(song, lang))}>{copy.title}</a></h3><p class="gloss">{gloss}</p><p>{copy.hook}</p></div>
-  <p class="track-meta meta">{song.public_moods.slice(0, 2).join(' / ')}</p>
+  <div class="track-actions"><p class="track-meta meta">{song.public_moods.slice(0, 2).join(' / ')}</p><ListenMenu links={song.streaming_links} entityType="song" entityId={song.id} lang={lang} /></div>
 </article>

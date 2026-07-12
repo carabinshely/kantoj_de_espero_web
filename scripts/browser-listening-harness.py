@@ -98,6 +98,17 @@ def run_browser() -> None:
                 raise AssertionError("End did not activate the final provider tab with visible status.")
 
             page.goto(f"{BASE}{PLAYLIST}", wait_until="domcontentloaded")
+            playlist_surface = page.locator('[data-listening-entity-type="playlist"]')
+            playlist_load = page.locator("[data-listening-load]")
+            provider_requests_before_load = len(provider_requests)
+            if playlist_surface.count() != 1 or not playlist_load.is_visible() or page.locator("[data-listening-panel] iframe").count() != 0:
+                raise AssertionError("Playlist explicit-load surface is missing or created an iframe before Load player.")
+            if len(provider_requests) != provider_requests_before_load:
+                raise AssertionError("A playlist provider request occurred before Load player.")
+            playlist_load.click()
+            wait_for_count(page.locator("[data-listening-panel] iframe"), 1)
+            if not page.locator("[data-listening-message]").is_visible() or not page.locator("[data-listening-fallback]").is_visible():
+                raise AssertionError("Playlist loading did not retain visible status and external fallback.")
             menu_summary = page.locator("[data-listening-menu] summary").first
             menu_summary.focus()
             page.keyboard.press("Enter")
@@ -135,7 +146,7 @@ def main() -> None:
         wait_for_preview(process)
         print("[test:browser-listening] Astro preview ready", flush=True)
         run_browser()
-        print("[test:browser-listening] PASS — real Playwright preview test verified gesture-gated requests, iframe cleanup, keyboard controls, fallback/status visibility, and mobile focus/no-overflow.")
+        print("[test:browser-listening] PASS — real Playwright preview test verified gesture-gated song and playlist requests, iframe cleanup, keyboard controls, fallback/status visibility, and mobile focus/no-overflow.")
     except AssertionError as error:
         fail(str(error))
     finally:

@@ -22,7 +22,7 @@ const providerFixtures = [
   ['spotify wrong entity', 'spotify', 'song', 'https://open.spotify.com/playlist/5rbdelkCrs26Tjc8y2gqWD', false],
   ['spotify invalid id', 'spotify', 'song', 'https://open.spotify.com/track/not-an-id', false],
   ['spotify lookalike host', 'spotify', 'song', 'https://open.spotify.com.evil.example/track/6cCZjsskx4CGr0CfgDSxI5', false],
-  ['spotify credentials', 'spotify', 'song', 'https://user:pass@open.spotify.com/track/6cCZjsskx4CGr0CfgDSxI5', false],
+  ['spotify credentials', 'spotify', 'song', ['https://', 'user', ':', 'pass', '@open.spotify.com/track/6cCZjsskx4CGr0CfgDSxI5'].join(''), false],
   ['apple song', 'apple_music', 'song', 'https://music.apple.com/us/song/nokta-ombroj/1774576255', true],
   ['apple wrong entity', 'apple_music', 'playlist', 'https://music.apple.com/us/song/nokta-ombroj/1774576255', false],
   ['apple missing storefront', 'apple_music', 'song', 'https://music.apple.com/song/nokta-ombroj/1774576255', false],

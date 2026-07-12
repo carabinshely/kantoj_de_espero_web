@@ -16,14 +16,15 @@
     "verify:privacy": "node scripts/verify-privacy.mjs",
     "verify:launch": "node scripts/verify-launch.mjs",
     "verify:preview-tmp": "node scripts/verify-preview-tmp.mjs",
-    "verify": "npm run build && npm run typecheck && npm run verify:data && npm run verify:lyrics && npm run verify:routes && npm run verify:seo && npm run verify:styles && npm run verify:privacy && npm run verify:analytics && npm run verify:preview-tmp",
+    "verify": "npm run build && npm run typecheck && npm run verify:data && npm run verify:lyrics && npm run verify:routes && npm run verify:seo && npm run verify:styles && npm run verify:privacy && npm run verify:analytics && npm run verify:listening && npm run verify:preview-tmp",
     "typecheck": "tsc --noEmit",
     "verify:full": "npm run export:data && npm run verify",
     "smoke:local": "npm run build && node scripts/smoke-local.mjs",
     "preview:tmp": "node scripts/preview-tmp.mjs",
     "verify:analytics": "node scripts/verify-analytics.mjs",
     "verify:lyrics": "node scripts/verify-lyrics.mjs",
-    "verify:styles": "node scripts/verify-styles.mjs"
+    "verify:styles": "node scripts/verify-styles.mjs",
+    "verify:listening": "node scripts/verify-listening.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

@@ -36,6 +36,9 @@ const selected = providers.includes('spotify') ? 'spotify' : providers[0];
     const render = (provider: string, allowed: boolean) => {
       active = provider;
       buttons.forEach((button) => button.setAttribute('aria-selected', String(button.dataset.listeningProvider === provider)));
+      const activeButton = buttons.find((button) => button.dataset.listeningProvider === provider)!;
+      panel.id = activeButton.getAttribute('aria-controls')!;
+      panel.setAttribute('aria-labelledby', activeButton.id);
       clearPlayer(); loaded = false;
       if (!allowed) { setState('ready', provider === 'apple_music' ? copy.dataset.appleMessage! : copy.dataset.spotifyMessage!); return; }
       if (provider === 'apple_music') { setState('external-only', copy.dataset.appleMessage!); return; }
